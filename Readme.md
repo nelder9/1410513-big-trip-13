@@ -1,7 +1,7 @@
 # Проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Артем Журавлев](https://up.htmlacademy.ru/ecmascript/13/user/1410513).
-* Наставник: `Неизвестно`.
+* Наставник: [Антон Белуженко](https://htmlacademy.ru/profile/id127006).
 
 ---
 
