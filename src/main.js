@@ -1,9 +1,21 @@
-import {createTripInfoTemplate} from "./view/trip-info.js";
-import {createTripTabsTemplate} from "./view/trip-tabs.js";
-import {createTripFiltersTemplate} from "./view/trip-filters.js";
-import {createTripEventsTemplate} from "./view/trip-events.js";
-import {createTripWrapperTemplate} from "./view/trip-wrapper.js";
-import {createTripItemTemplate} from "./view/trip-item.js";
+import {
+  createTripInfoTemplate
+} from "./view/trip-info.js";
+import {
+  createTripTabsTemplate
+} from "./view/trip-tabs.js";
+import {
+  createTripFiltersTemplate
+} from "./view/trip-filters.js";
+import {
+  createTripEventsTemplate
+} from "./view/trip-events.js";
+import {
+  createTripWrapperTemplate
+} from "./view/trip-wrapper.js";
+import {
+  createTripItemTemplate
+} from "./view/trip-item.js";
 
 const ITEM_COUNT = 3;
 
@@ -24,5 +36,5 @@ render(siteTripEventsElement, createTripWrapperTemplate(), `beforeend`);
 const siteTripWrapperElement = document.querySelector(`.trip-events__list`);
 
 for (let i = 0; i < ITEM_COUNT; i++) {
-    render(siteTripWrapperElement, createTripItemTemplate(), `beforeend`);
-  }
+  render(siteTripWrapperElement, createTripItemTemplate(), `beforeend`);
+}
