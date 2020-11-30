@@ -16,8 +16,17 @@ import {
 import {
   createTripItemTemplate
 } from "./view/trip-item.js";
+import {
+  createTripItemEditTemplate
+} from "./view/trip-item-edit";
 
-const ITEM_COUNT = 3;
+import {
+  generateEvent
+} from "./mock/event.js";
+
+const ITEM_COUNT = 15;
+
+const events = new Array(ITEM_COUNT).fill().map(generateEvent);
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
@@ -35,6 +44,9 @@ render(siteTripEventsElement, createTripWrapperTemplate(), `beforeend`);
 
 const siteTripWrapperElement = document.querySelector(`.trip-events__list`);
 
-for (let i = 0; i < ITEM_COUNT; i++) {
-  render(siteTripWrapperElement, createTripItemTemplate(), `beforeend`);
+render(siteTripWrapperElement, createTripItemEditTemplate(events[0]), `afterbegin`);
+
+for (let i = 1; i < ITEM_COUNT; i++) {
+  render(siteTripWrapperElement, createTripItemTemplate(events[i]), `beforeend`);
 }
+
