@@ -1,4 +1,6 @@
-export const createTripItemTemplate = (event) => {
+import {createElement} from "../utils.js";
+
+const createTripItemTemplate = (event) => {
   const {
     date,
     type,
@@ -45,3 +47,27 @@ export const createTripItemTemplate = (event) => {
     </div>
   </li>`;
 };
+
+export default class Event {
+  constructor(event) {
+    this._event = event;
+
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createTripItemTemplate(this._event);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

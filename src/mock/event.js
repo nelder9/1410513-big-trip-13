@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-import {getRandomInteger} from "../utils/utils.js";
+import {getRandomInteger} from "../utils.js";
 
 const generateType = () => {
   const types = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`, `Check-in`, `Sightseeing`, `Restaurant`];

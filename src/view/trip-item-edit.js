@@ -1,4 +1,6 @@
-export const createTripItemEditTemplate = (event) => {
+import {createElement} from "../utils.js";
+
+const createTripItemEditTemplate = (event) => {
 
   const {
     type,
@@ -169,3 +171,28 @@ export const createTripItemEditTemplate = (event) => {
               </form>
             </li>`;
 };
+
+
+export default class EventEdit {
+  constructor(event) {
+    this._event = event;
+
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createTripItemEditTemplate(this._event);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
