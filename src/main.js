@@ -1,10 +1,11 @@
 import TripInfoView from "./view/trip-info.js";
 import TripTabsView from "./view/trip-tabs.js";
 import TripFiltersView from "./view/trip-filters.js";
-import TripEventsView from "./view/trip-events.js";
+import TripEventsSortView from "./view/trip-events-sort.js";
 import TripWrapperView from "./view/trip-wrapper.js";
 import TripItemView from "./view/trip-item.js";
-import TripItemEditView from "./view/trip-item-edit";
+import TripItemEditView from "./view/trip-item-edit.js";
+import TripNoEventsView from "./view/trip-no-events.js";
 
 import {
   generateEvent
@@ -14,7 +15,7 @@ import {
   RenderPosition
 } from "./utils.js";
 
-const ITEM_COUNT = 15;
+const ITEM_COUNT = 0;
 
 const events = new Array(ITEM_COUNT).fill().map(generateEvent);
 
@@ -57,15 +58,25 @@ const renderEvent = (eventListElement, event) => {
     document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
+  eventEditComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+    replaceEditToEvent();
+    document.removeEventListener(`keydown`, onEscKeyDown);
+  });
+
   render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
 };
 
 const renderBoard = (boardContainer, boardEvents) => {
-  const boardComponent = new TripEventsView();
+  const boardComponent = new TripEventsSortView();
   const eventsListComponent = new TripWrapperView();
 
-  render(boardContainer, boardComponent.getElement(), RenderPosition.AFTERBEGIN);
-  render(boardComponent.getElement(), eventsListComponent.getElement(), RenderPosition.BEFOREEND);
+  if (!boardEvents.length) {
+    render(boardContainer, new TripNoEventsView().getElement(), RenderPosition.BEFOREEND);
+    return;
+  }
+
+  render(boardContainer, boardComponent.getElement(), RenderPosition.BEFOREEND);
+  render(boardContainer, eventsListComponent.getElement(), RenderPosition.BEFOREEND);
 
   for (let i = 0; i < ITEM_COUNT; i++) {
     renderEvent(eventsListComponent.getElement(), boardEvents[i]);
