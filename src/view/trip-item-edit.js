@@ -1,4 +1,4 @@
-import {createElement} from "../utils.js";
+import AbstractView from "./abstract.js";
 
 const createTripItemEditTemplate = (event) => {
 
@@ -173,26 +173,35 @@ const createTripItemEditTemplate = (event) => {
 };
 
 
-export default class EventEdit {
+export default class EventEdit extends AbstractView {
   constructor(event) {
+    super();
     this._event = event;
-
-    this._element = null;
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
   }
 
   getTemplate() {
     return createTripItemEditTemplate(this._event);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.submitForm();
   }
 
-  removeElement() {
-    this._element = null;
+  setSubmitFormHandler(callback) {
+    this._callback.submitForm = callback;
+    this.getElement().addEventListener(`click`, this._formSubmitHandler);
   }
+
+  _clickHandler(evt) {
+    evt.preventDefault();
+    this._callback.click();
+  }
+
+  setClickHandler(callback) {
+    this._callback.click = callback;
+    this.getElement().addEventListener(`click`, this._clickHandler);
+  }
+
 }
