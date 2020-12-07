@@ -7,7 +7,7 @@ import TripItemView from "./view/trip-item.js";
 import TripItemEditView from "./view/trip-item-edit.js";
 import TripNoEventsView from "./view/trip-no-events.js";
 import {render, RenderPosition, replace} from "./utils/render.js";
-
+import {ESC} from "./const.js";
 import {
   generateEvent
 } from "./mock/event.js";
@@ -37,7 +37,7 @@ const renderEvent = (eventListElement, event) => {
   };
 
   const onEscKeyDown = (evt) => {
-    if (evt.key === `Escape` || evt.key === `Esc`) {
+    if (evt.which === ESC) {
       evt.preventDefault();
       replaceEditToEvent();
       document.removeEventListener(`keydown`, onEscKeyDown);

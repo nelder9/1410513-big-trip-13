@@ -178,6 +178,7 @@ export default class EventEdit extends AbstractView {
     super();
     this._event = event;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._clickHandler = this._clickHandler.bind(this);
   }
 
   getTemplate() {
@@ -191,7 +192,7 @@ export default class EventEdit extends AbstractView {
 
   setSubmitFormHandler(callback) {
     this._callback.submitForm = callback;
-    this.getElement().addEventListener(`click`, this._formSubmitHandler);
+    this.getElement().querySelector(`.event__save-btn`).addEventListener(`click`, this._formSubmitHandler);
   }
 
   _clickHandler(evt) {
@@ -201,7 +202,7 @@ export default class EventEdit extends AbstractView {
 
   setClickHandler(callback) {
     this._callback.click = callback;
-    this.getElement().addEventListener(`click`, this._clickHandler);
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._clickHandler);
   }
 
 }
