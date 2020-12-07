@@ -6,16 +6,13 @@ import TripWrapperView from "./view/trip-wrapper.js";
 import TripItemView from "./view/trip-item.js";
 import TripItemEditView from "./view/trip-item-edit.js";
 import TripNoEventsView from "./view/trip-no-events.js";
-
+import {render, RenderPosition, replace} from "./utils/render.js";
+import {ESC} from "./const.js";
 import {
   generateEvent
 } from "./mock/event.js";
-import {
-  render,
-  RenderPosition
-} from "./utils.js";
 
-const ITEM_COUNT = 0;
+const ITEM_COUNT = 5;
 
 const events = new Array(ITEM_COUNT).fill().map(generateEvent);
 
@@ -32,33 +29,32 @@ const renderEvent = (eventListElement, event) => {
   const eventEditComponent = new TripItemEditView(event);
 
   const replaceEventToEdit = () => {
-    eventListElement.replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
+    replace(eventEditComponent, eventComponent);
   };
 
   const replaceEditToEvent = () => {
-    eventListElement.replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
+    replace(eventComponent, eventEditComponent);
   };
 
   const onEscKeyDown = (evt) => {
-    if (evt.key === `Escape` || evt.key === `Esc`) {
+    if (evt.which === ESC) {
       evt.preventDefault();
       replaceEditToEvent();
       document.removeEventListener(`keydown`, onEscKeyDown);
     }
   };
 
-  eventComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+  eventComponent.setClickHandler(() => {
     replaceEventToEdit();
     document.addEventListener(`keydown`, onEscKeyDown);
   });
 
-  eventEditComponent.getElement().querySelector(`form`).addEventListener(`submit`, (evt) => {
-    evt.preventDefault();
+  eventEditComponent.setSubmitFormHandler(() => {
     replaceEditToEvent();
     document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
-  eventEditComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+  eventEditComponent.setClickHandler(() => {
     replaceEditToEvent();
     document.removeEventListener(`keydown`, onEscKeyDown);
   });
@@ -78,8 +74,8 @@ const renderBoard = (boardContainer, boardEvents) => {
   render(boardContainer, boardComponent.getElement(), RenderPosition.BEFOREEND);
   render(boardContainer, eventsListComponent.getElement(), RenderPosition.BEFOREEND);
 
-  for (let i = 0; i < ITEM_COUNT; i++) {
-    renderEvent(eventsListComponent.getElement(), boardEvents[i]);
+  for (const event of boardEvents) {
+    renderEvent(eventsListComponent.getElement(), event);
   }
 };
 
