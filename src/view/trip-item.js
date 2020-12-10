@@ -7,12 +7,13 @@ const createTripItemTemplate = (event) => {
     offer,
     price,
     destination,
-    isFavorite
+    isFavorite,
+    time
   } = event;
 
   const favoriteClassName = isFavorite
     ? `event__favorite-btn--active`
-    : `event__favorite-btn`;
+    : ``;
 
   return `<li class="trip-events__item">
     <div class="event">
@@ -27,7 +28,7 @@ const createTripItemTemplate = (event) => {
           &mdash;
           <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
         </p>
-        <p class="event__duration">30M</p>
+        <p class="event__duration">${time}</p>
       </div>
       <p class="event__price">
         &euro;&nbsp;<span class="event__price-value">${price}</span>
