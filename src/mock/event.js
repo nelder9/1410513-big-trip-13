@@ -2,11 +2,17 @@ import dayjs from "dayjs";
 
 import {getRandomInteger} from "../utils/common.js";
 
+const generateId = () => Date.now() + Math.ceil(Math.random() * 10000, 10);
+
 const generateType = () => {
   const types = [`Taxi`, `Bus`, `Train`, `Ship`, `Transport`, `Drive`, `Flight`, `Check-in`, `Sightseeing`, `Restaurant`];
   const randomIndex = getRandomInteger(0, types.length - 1);
 
   return types[randomIndex];
+};
+
+const generateTime = () => {
+  return getRandomInteger(5, 60);
 };
 
 const generateOffer = () => {
@@ -82,12 +88,15 @@ export const generateEvent = () => {
   };
 
   return {
+    id: generateId(),
     date: generateDate(),
     type: generateType(),
+    time: generateTime(),
     offer: generateOffer(),
     price: generatePrice(),
     picture: generatePicture(),
     destination: generateDestination(),
-    text: generateText()
+    text: generateText(),
+    isFavorite: Boolean(getRandomInteger(0, 1))
   };
 };
