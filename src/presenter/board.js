@@ -14,7 +14,7 @@ import {
 } from "../utils/event.js";
 import {
   render,
-  renderPosition
+  RenderPosition
 } from "../utils/render.js";
 
 export default class Board {
@@ -36,7 +36,7 @@ export default class Board {
     this._boardEvents = boardEvents.slice();
     this._sourcedboardEvents = boardEvents.slice();
 
-    render(this._boardContainer, this._tripWrapperComponent, renderPosition.BEFOREEND);
+    render(this._boardContainer, this._tripWrapperComponent, RenderPosition.BEFOREEND);
 
     this._renderBoard();
   }
@@ -88,12 +88,12 @@ export default class Board {
   }
 
   _renderSort() {
-    render(this._boardContainer, this._tripEventsSortComponent, renderPosition.AFTERBEGIN);
+    render(this._boardContainer, this._tripEventsSortComponent, RenderPosition.AFTERBEGIN);
     this._tripEventsSortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
   }
 
   _renderNoEvents() {
-    render(this._boardContainer, this._tripNoEventsComponent, renderPosition.BEFOREEND);
+    render(this._boardContainer, this._tripNoEventsComponent, RenderPosition.BEFOREEND);
   }
 
   _clearEventList() {

@@ -2,7 +2,7 @@ import TripItemView from "../view/trip-item.js";
 import TripItemEditView from "../view/trip-item-edit.js";
 import {
   render,
-  renderPosition,
+  RenderPosition,
   replace,
   remove
 } from "../utils/render.js";
@@ -46,7 +46,7 @@ export default class Event {
     this._eventEditComponent.setClickHandler(this._handleTripClick);
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
-      render(this._eventListContainer, this._eventComponent, renderPosition.BEFOREEND);
+      render(this._eventListContainer, this._eventComponent, RenderPosition.BEFOREEND);
       return;
     }
     if (this._mode === Mode.DEFAULT) {
