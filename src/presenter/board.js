@@ -1,14 +1,21 @@
-import {
-  render,
-  RenderPosition
-} from "../utils/render.js";
 import TripEventsSortView from "../view/trip-events-sort.js";
 import TripWrapperView from "../view/trip-wrapper.js";
 import TripNoEventsView from "../view/trip-no-events.js";
 import EventPresenter from "./event.js";
-import {getUpdatedItems} from "../utils/common.js";
-import {SortType} from "../const.js";
-import {sortEventByPrice, sortEventByTime} from "../utils/event.js";
+import {
+  getUpdatedItems
+} from "../utils/common.js";
+import {
+  SortType
+} from "../const.js";
+import {
+  sortEventByPrice,
+  sortEventByTime
+} from "../utils/event.js";
+import {
+  render,
+  RenderPosition
+} from "../utils/render.js";
 
 export default class Board {
   constructor(boardContainer) {
@@ -42,8 +49,9 @@ export default class Board {
       case SortType.PRICE:
         this._boardEvents.sort(sortEventByPrice);
         break;
-      default:
+      case SortType.DEFAULT:
         this._boardEvents = this._sourcedboardEvents.slice();
+        break;
     }
 
     this._currentSortType = sortType;

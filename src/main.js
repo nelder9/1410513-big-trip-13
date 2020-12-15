@@ -7,7 +7,8 @@ import {
   generateEvent
 } from "./mock/event.js";
 import {sortEventByDays} from "./utils/event.js";
-const ITEM_COUNT = 40;
+
+const ITEM_COUNT = 5;
 
 const events = new Array(ITEM_COUNT).fill().map(generateEvent).sort(sortEventByDays);
 
