@@ -44,7 +44,6 @@ export default class TripWrapper extends AbstractView {
   }
 
   setSortTypeChangeHandler(callback) {
-
     this._callback.sortTypeChange = callback;
     this.getElement().addEventListener(`click`, this._sortTypeChangeHandler);
   }
