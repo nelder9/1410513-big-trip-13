@@ -5,9 +5,8 @@ const createOfferTemplate = (type) => {
     return `<span class="event__offer-title">${type.offers[1].title}</span>
     &plus;&euro;&nbsp;
     <span class="event__offer-price">${type.offers[1].price}</span>`;
-  } else {
-    return ``;
   }
+  return ``;
 };
 
 
@@ -22,9 +21,9 @@ const createTripItemTemplate = (event) => {
     time
   } = event;
 
-  const favoriteClassName = isFavorite ?
-    `event__favorite-btn--active` :
-    ``;
+  const favoriteClassName = isFavorite
+    ? `event__favorite-btn--active`
+    : ``;
 
   const offerTemplate = createOfferTemplate(type);
 
