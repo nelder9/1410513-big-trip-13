@@ -88,6 +88,7 @@ export default class Event {
   _escKeyDownHandler(evt) {
     if (evt.which === ESC) {
       evt.preventDefault();
+      this._eventEditComponent.reset(this._event);
       this._replaceEditToTrip();
     }
   }
@@ -97,6 +98,7 @@ export default class Event {
   }
 
   _handleTripClick() {
+    this._eventEditComponent.reset(this._event);
     this._replaceEditToTrip();
   }
 

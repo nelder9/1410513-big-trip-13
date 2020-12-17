@@ -1,13 +1,11 @@
-import AbstractView from "./abstract.js";
+import SmartView from "./smart.js";
 
-const createTripItemEditTemplate = (event) => {
-
+const createTripItemEditTemplate = (data) => {
   const {
     type,
     price,
-    destination,
-    text
-  } = event;
+    destination
+  } = data;
 
 
   return `<li class="trip-events__item">
@@ -16,7 +14,7 @@ const createTripItemEditTemplate = (event) => {
                   <div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
                       <span class="visually-hidden">Choose event type</span>
-                      <img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
+                      <img class="event__type-icon" width="17" height="17" src="img/icons/${type.name}.png" alt="Event type icon">
                     </label>
                     <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -79,9 +77,9 @@ const createTripItemEditTemplate = (event) => {
 
                   <div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
-                      ${type}
+                      ${type.name}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
                     <datalist id="destination-list-1">
                       <option value="Amsterdam"></option>
                       <option value="Geneva"></option>
@@ -116,6 +114,7 @@ const createTripItemEditTemplate = (event) => {
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
                     <div class="event__available-offers">
+
                       <div class="event__offer-selector">
                         <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" checked="">
                         <label class="event__offer-label" for="event-offer-luggage-1">
@@ -165,7 +164,16 @@ const createTripItemEditTemplate = (event) => {
 
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${text}</p>
+                    <p class="event__destination-description">${destination.text}</p>
+                    <div class="event__photos-container">
+                      <div class="event__photos-tape">
+                        <img class="event__photo" src="img/photos/1.jpg" alt="Event photo">
+                        <img class="event__photo" src="img/photos/2.jpg" alt="Event photo">
+                        <img class="event__photo" src="img/photos/3.jpg" alt="Event photo">
+                        <img class="event__photo" src="img/photos/4.jpg" alt="Event photo">
+                        <img class="event__photo" src="img/photos/5.jpg" alt="Event photo">
+                      </div>
+                    </div>
                   </section>
                 </section>
               </form>
@@ -173,21 +181,31 @@ const createTripItemEditTemplate = (event) => {
 };
 
 
-export default class EventEdit extends AbstractView {
+export default class EventEdit extends SmartView {
   constructor(event) {
     super();
-    this._event = event;
+    this._data = EventEdit.parseEventToData(event);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._priceInputHandler = this._priceInputHandler.bind(this);
+    this._typeChangeHandler = this._typeChangeHandler.bind(this);
+    this._destinationInputHandler = this._destinationInputHandler.bind(this);
     this._clickHandler = this._clickHandler.bind(this);
+
+    this._setInnerHandlers();
+  }
+
+  reset(event) {
+
+    this.updateData(EventEdit.parseEventToData(event));
   }
 
   getTemplate() {
-    return createTripItemEditTemplate(this._event);
+    return createTripItemEditTemplate(this._data);
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.submitForm(this._event);
+    this._callback.submitForm(EventEdit.parseDataToEvent(this._data));
   }
 
   setSubmitFormHandler(callback) {
@@ -205,4 +223,77 @@ export default class EventEdit extends AbstractView {
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._clickHandler);
   }
 
+  static parseEventToData(event) {
+    return Object.assign({}, event);
+  }
+
+  static parseDataToEvent(data) {
+    return Object.assign({}, data);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setSubmitFormHandler(this._callback.submitForm);
+    this.setClickHandler(this._callback.click);
+  }
+
+  _setInnerHandlers() {
+
+    this.getElement()
+      .querySelector(`.event__input--price`)
+      .addEventListener(`input`, this._priceInputHandler);
+
+    this.getElement()
+      .querySelector(`.event__type-group`)
+      .addEventListener(`change`, this._typeChangeHandler);
+
+    this.getElement()
+      .querySelector(`.event__input--destination`)
+      .addEventListener(`input`, this._destinationInputHandler);
+
+  }
+
+  _priceInputHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      price: parseInt(evt.target.value, 10)
+    }, true);
+  }
+
+  _typeChangeHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      type: {
+        name: evt.target.value
+      }
+    });
+  }
+
+  _destinationInputHandler(evt) {
+    evt.preventDefault();
+    if (evt.target.value === `Geneva`) {
+      this.updateData({
+        destination: {
+          name: `Geneva`,
+          text: `Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman (Lake Geneva). Surrounded by the Alps and Jura mountains, the city has views of dramatic Mont Blanc.`
+        }
+      });
+    }
+    if (evt.target.value === `Amsterdam`) {
+      this.updateData({
+        destination: {
+          name: `Amsterdam`,
+          text: `Amsterdam, city and port, western Netherlands, located on the IJsselmeer and connected to the North Sea. It is the capital and the principal commercial and financial centre of the Netherlands.`
+        }
+      });
+    }
+    if (evt.target.value === `Chamonix`) {
+      this.updateData({
+        destination: {
+          name: `Chamonix`,
+          text: `Chamonix-Mont-Blanc (usually shortened to Chamonix) is a resort area near the junction of France, Switzerland and Italy. At the base of Mont Blanc, the highest summit in the Alps, it's renowned for its skiing.`
+        }
+      });
+    }
+  }
 }
