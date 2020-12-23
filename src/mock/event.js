@@ -9,8 +9,7 @@ const generateId = () => Date.now() + Math.ceil(Math.random() * 10000, 10);
 
 const generateDestination = () => {
 
-  const cities = [
-    {
+  const cities = [{
       name: `Geneva`,
       text: `Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman (Lake Geneva). Surrounded by the Alps and Jura mountains, the city has views of dramatic Mont Blanc.`
     },
@@ -30,8 +29,7 @@ const generateDestination = () => {
 };
 
 const generateType = () => {
-  const types = [
-    {
+  const types = [{
       name: `taxi`,
       offers: [{
         title: `Order Uber`,
@@ -90,7 +88,7 @@ const generateType = () => {
 };
 
 const generateTime = () => {
-  return getRandomInteger(5, 60);
+  return dayjs().format(`HH:mm`);
 };
 
 

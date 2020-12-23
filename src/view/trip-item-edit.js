@@ -1,10 +1,15 @@
 import SmartView from "./smart.js";
+import dayjs from "dayjs";
+import flatpickr from "flatpickr";
+
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const createTripItemEditTemplate = (data) => {
   const {
     type,
     price,
-    destination
+    destination,
+    time
   } = data;
 
 
@@ -89,7 +94,7 @@ const createTripItemEditTemplate = (data) => {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="18/03/19 12:25">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${time}">
                     —
                     <label class="visually-hidden" for="event-end-time-1">To</label>
                     <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="18/03/19 13:35">
@@ -188,10 +193,13 @@ export default class EventEdit extends SmartView {
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
+    this._dueDateChangeHandler = this._dueDateChangeHandler.bind(this);
     this._destinationInputHandler = this._destinationInputHandler.bind(this);
     this._clickHandler = this._clickHandler.bind(this);
+    this._datepicker = null;
 
     this._setInnerHandlers();
+    this._setDatepicker();
   }
 
   reset(event) {
@@ -233,8 +241,36 @@ export default class EventEdit extends SmartView {
 
   restoreHandlers() {
     this._setInnerHandlers();
+    this._setDatepicker();
     this.setSubmitFormHandler(this._callback.submitForm);
     this.setClickHandler(this._callback.click);
+  }
+
+  _setDatepicker() {
+    if (this._datepicker) {
+      // В случае обновления компонента удаляем вспомогательные DOM-элементы,
+      // которые создает flatpickr при инициализации
+      this._datepicker.destroy();
+      this._datepicker = null;
+    }
+    // flatpickr есть смысл инициализировать только в случае,
+    // если поле выбора даты доступно для заполнения
+    this._datepicker = flatpickr(
+        this.getElement().querySelector(`#event-start-time-1`), { 
+          dateFormat: `d/m/y H:i`,
+          enableTime: true,
+          onClose: this._dueDateChangeHandler // На событие flatpickr передаём наш колбэк
+        }
+    );
+
+  }
+
+  _dueDateChangeHandler([userDate]) {
+    console.log(dayjs(userDate).format('DD/MM/YYYY HH:mm'));
+
+    this.updateData({
+      time: dayjs(userDate).format('DD/MM/YYYY HH:mm')
+    }, true);
   }
 
   _setInnerHandlers() {

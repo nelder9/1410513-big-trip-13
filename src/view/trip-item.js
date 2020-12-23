@@ -36,11 +36,11 @@ const createTripItemTemplate = (event) => {
       <h3 class="event__title">${type.name} ${destination.name}</h3>
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
+          <time class="event__start-time" datetime="2019-03-18T10:30">${time}</time>
           &mdash;
-          <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
+          <time class="event__end-time" datetime="2019-03-18T11:00">12</time>
         </p>
-        <p class="event__duration">${time}</p>
+        <p class="event__duration">0</p>
       </div>
       <p class="event__price">
         &euro;&nbsp;<span class="event__price-value">${price}</span>
