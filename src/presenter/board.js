@@ -1,12 +1,16 @@
 import TripEventsSortView from "../view/trip-events-sort.js";
+import EventNewPresenter from "./event-new.js";
 import TripWrapperView from "../view/trip-wrapper.js";
 import TripNoEventsView from "../view/trip-no-events.js";
 import EventPresenter from "./event.js";
 import {
-  getUpdatedItems
-} from "../utils/common.js";
+  filter
+} from "../utils/filter.js";
 import {
-  SortType
+  SortType,
+  UpdateType,
+  UserAction,
+  FilterType
 } from "../const.js";
 import {
   sortEventByPrice,
@@ -14,47 +18,61 @@ import {
 } from "../utils/event.js";
 import {
   render,
-  RenderPosition
+  RenderPosition,
+  remove
 } from "../utils/render.js";
 
 export default class Board {
-  constructor(boardContainer) {
+  constructor(boardContainer, eventsModel, filterModel) {
+    this._eventsModel = eventsModel;
+    this._filterModel = filterModel;
     this._boardContainer = boardContainer;
     this._eventPresenter = {};
 
+    this._tripEventsSortComponent = null;
+
     this._currentSortType = SortType.DEFAULT;
+
     this._tripNoEventsComponent = new TripNoEventsView();
-    this._tripEventsSortComponent = new TripEventsSortView();
     this._tripWrapperComponent = new TripWrapperView();
 
+    this._handleViewAction = this._handleViewAction.bind(this);
+    this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleEventChange = this._handleEventChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+
+    this._eventsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
+
+    this._eventNewPresenter = new EventNewPresenter(this._tripWrapperComponent, this._handleViewAction);
   }
 
-  init(boardEvents) {
-    this._boardEvents = boardEvents.slice();
-    this._sourcedboardEvents = boardEvents.slice();
-
+  init() {
     render(this._boardContainer, this._tripWrapperComponent, RenderPosition.BEFOREEND);
 
     this._renderBoard();
   }
 
-  _sortEvents(sortType) {
-    switch (sortType) {
+  createEvent() {
+    this._currentSortType = SortType.DEFAULT;
+    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this._eventNewPresenter.init();
+  }
+  _getEvents() {
+
+    const filterType = this._filterModel.getFilter();
+    const events = this._eventsModel.getEvents();
+    const filtredEvents = filter[filterType](events);
+
+    switch (this._currentSortType) {
       case SortType.TIME:
-        this._boardEvents.sort(sortEventByTime);
-        break;
+        return filtredEvents.sort(sortEventByTime);
       case SortType.PRICE:
-        this._boardEvents.sort(sortEventByPrice);
-        break;
-      case SortType.DEFAULT:
-        this._boardEvents = this._sourcedboardEvents.slice();
-        break;
+        return filtredEvents.sort(sortEventByPrice);
     }
 
-    this._currentSortType = sortType;
+    return filtredEvents;
   }
 
   _handleModeChange() {
@@ -64,7 +82,6 @@ export default class Board {
   }
 
   _handleEventChange(updatedEvent) {
-    this._boardEvents = getUpdatedItems(this._boardEvents, updatedEvent);
     this._eventPresenter[updatedEvent.id].init(updatedEvent);
   }
 
@@ -73,34 +90,65 @@ export default class Board {
       return;
     }
 
-    this._sortEvents(sortType);
-    this._clearEventList();
+    this._currentSortType = sortType;
+    this._clearBoard();
     this._renderBoard();
   }
 
+  _handleViewAction(actionType, updateType, update) {
+    switch (actionType) {
+      case UserAction.UPDATE_EVENT:
+        this._eventsModel.updateEvent(updateType, update);
+        break;
+      case UserAction.ADD_EVENT:
+        this._eventsModel.addEvent(updateType, update);
+        break;
+      case UserAction.DELETE_EVENT:
+        this._eventsModel.deleteEvent(updateType, update);
+        break;
+    }
+  }
+
+  _handleModelEvent(updateType, data) {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this._eventPresenter[data.id].init(data);
+        break;
+      case UpdateType.MINOR:
+        this._clearBoard();
+        this._renderBoard();
+        break;
+      case UpdateType.MAJOR:
+        this._clearBoard({
+          resetSortType: true
+        });
+        this._renderBoard();
+        break;
+    }
+  }
+
   _renderBoard() {
-    if (!this._boardEvents.length) {
+    if (!this._getEvents().length) {
       this._renderNoEvents();
       return;
     }
     this._renderSort();
-    this._renderEvents(this._boardEvents);
+    this._renderEvents(this._getEvents());
   }
 
   _renderSort() {
-    render(this._boardContainer, this._tripEventsSortComponent, RenderPosition.AFTERBEGIN);
+    if (this._tripEventsSortComponent !== null) {
+      this._tripEventsSortComponent = null;
+    }
+
+    this._tripEventsSortComponent = new TripEventsSortView(this._currentSortType);
     this._tripEventsSortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
+
+    render(this._boardContainer, this._tripEventsSortComponent, RenderPosition.AFTERBEGIN);
   }
 
   _renderNoEvents() {
     render(this._boardContainer, this._tripNoEventsComponent, RenderPosition.BEFOREEND);
-  }
-
-  _clearEventList() {
-    Object
-      .values(this._eventPresenter)
-      .forEach((presenter) => presenter.destroy());
-    this._taskPresenter = {};
   }
 
   _renderEvents(events) {
@@ -108,8 +156,24 @@ export default class Board {
   }
 
   _renderEvent(event) {
-    const eventPresenter = new EventPresenter(this._tripWrapperComponent, this._handleEventChange, this._handleModeChange);
+    const eventPresenter = new EventPresenter(this._tripWrapperComponent, this._handleViewAction, this._handleModeChange);
     eventPresenter.init(event);
     this._eventPresenter[event.id] = eventPresenter;
+  }
+
+  _clearBoard({
+    resetSortType = false
+  } = {}) {
+
+    Object
+      .values(this._eventPresenter)
+      .forEach((presenter) => presenter.destroy());
+    this._eventPresenter = {};
+
+    remove(this._tripEventsSortComponent);
+
+    if (resetSortType) {
+      this._currentSortType = SortType.DEFAULT;
+    }
   }
 }

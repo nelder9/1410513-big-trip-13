@@ -5,11 +5,12 @@ import {
 } from "../utils/common.js";
 
 
-const generateId = () => Date.now() + Math.ceil(Math.random() * 10000, 10);
+export const generateId = () => Date.now() + Math.ceil(Math.random() * 10000, 10);
 
 const generateDestination = () => {
 
-  const cities = [{
+  const cities = [
+    {
       name: `Geneva`,
       text: `Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman (Lake Geneva). Surrounded by the Alps and Jura mountains, the city has views of dramatic Mont Blanc.`
     },
@@ -29,7 +30,8 @@ const generateDestination = () => {
 };
 
 const generateType = () => {
-  const types = [{
+  const types = [
+    {
       name: `taxi`,
       offers: [{
         title: `Order Uber`,
@@ -88,7 +90,7 @@ const generateType = () => {
 };
 
 const generateTime = () => {
-  return dayjs().format(`HH:mm`);
+  return getRandomInteger(5, 60);
 };
 
 
@@ -97,12 +99,13 @@ const generatePrice = () => {
   return getRandomInteger(10, 200);
 };
 
+export const generateDate = () => {
+  const maxDaysGap = 7;
+  const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
+  return dayjs(dayjs().add(daysGap, `day`).toDate());
+};
+
 export const generateEvent = () => {
-  const generateDate = () => {
-    const maxDaysGap = 7;
-    const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
-    return dayjs(dayjs().add(daysGap, `day`).toDate()).format(`MMM D`);
-  };
 
   return {
     id: generateId(),

@@ -1,5 +1,6 @@
 import TripItemView from "../view/trip-item.js";
 import TripItemEditView from "../view/trip-item-edit.js";
+import {UserAction, UpdateType} from "../const.js";
 import {
   render,
   RenderPosition,
@@ -7,7 +8,9 @@ import {
   remove
 } from "../utils/render.js";
 
-import {ESC} from "../const.js";
+import {
+  ESC
+} from "../const.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -29,6 +32,7 @@ export default class Event {
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleTripClick = this._handleTripClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
   }
 
   init(event) {
@@ -40,6 +44,7 @@ export default class Event {
     this._eventComponent = new TripItemView(event);
     this._eventEditComponent = new TripItemEditView(event);
 
+    this._eventEditComponent.setDeleteClickHandler(this._handleDeleteClick);
     this._eventComponent.setClickHandler(this._handleEditClick);
     this._eventComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._eventEditComponent.setSubmitFormHandler(this._handleFormSubmit);
@@ -104,6 +109,8 @@ export default class Event {
 
   _handleFavoriteClick() {
     this._changeData(
+        UserAction.UPDATE_EVENT,
+        UpdateType.MINOR,
         Object.assign({},
             this._event, {
               isFavorite: !this._event.isFavorite
@@ -113,7 +120,18 @@ export default class Event {
   }
 
   _handleFormSubmit(event) {
-    this._changeData(event);
+    this._changeData(
+        UserAction.UPDATE_EVENT,
+        UpdateType.MINOR,
+        event);
     this._replaceEditToTrip();
+  }
+
+  _handleDeleteClick(event) {
+    this._changeData(
+        UserAction.DELETE_EVENT,
+        UpdateType.MINOR,
+        event
+    );
   }
 }
