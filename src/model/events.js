@@ -46,10 +46,7 @@ export default class Events extends Observer {
       throw new Error(`Can't delete unexisting task`);
     }
 
-    this._events = [
-      ...this._events.slice(0, index),
-      ...this._events.slice(index + 1)
-    ];
+    this._events = this._events.filter((_, i) => i !== index);
 
     this._notify(updateType);
   }

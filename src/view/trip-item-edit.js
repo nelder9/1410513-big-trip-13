@@ -199,7 +199,6 @@ export default class EventEdit extends SmartView {
   constructor(event = BLANK_EVENT) {
     super();
     this._data = EventEdit.parseEventToData(event);
-    this._datepicker = null;
 
     this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);

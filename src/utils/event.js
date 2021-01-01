@@ -1,11 +1,11 @@
 import dayjs from "dayjs";
 
 export const isEventPast = (date) => {
-  return date === null ? false : dayjs().isAfter(date, `MMM D`);
+  return date && dayjs().isAfter(date, `MMM D`);
 };
 
 export const isEventFuture = (date) => {
-  return date === null ? false : dayjs().isBefore(date, `MMM D`);
+  return date && dayjs().isBefore(date, `MMM D`);
 };
 
 export const sortEventByDays = (eventA, eventB) => {

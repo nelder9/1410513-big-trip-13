@@ -3,7 +3,7 @@ import {
 } from "../const";
 import {isEventPast, isEventFuture} from "./event";
 
-export const filter = {
+export const FILTERS = {
   [FilterType.EVERYTHING]: (events) => events,
   [FilterType.FUTURE]: (events) => events.filter((event) => isEventFuture(event.date)),
   [FilterType.PAST]: (events) => events.filter((event) => isEventPast(event.date)),

@@ -1,6 +1,9 @@
 import TripItemView from "../view/trip-item.js";
 import TripItemEditView from "../view/trip-item-edit.js";
-import {UserAction, UpdateType} from "../const.js";
+import {
+  UserAction,
+  UpdateType
+} from "../const.js";
 import {
   render,
   RenderPosition,
@@ -8,9 +11,7 @@ import {
   remove
 } from "../utils/render.js";
 
-import {
-  ESC
-} from "../const.js";
+import {ESC} from "../const.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -123,7 +124,8 @@ export default class Event {
     this._changeData(
         UserAction.UPDATE_EVENT,
         UpdateType.MINOR,
-        event);
+        event
+    );
     this._replaceEditToTrip();
   }
 

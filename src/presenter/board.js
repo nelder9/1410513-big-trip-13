@@ -3,9 +3,7 @@ import EventNewPresenter from "./event-new.js";
 import TripWrapperView from "../view/trip-wrapper.js";
 import TripNoEventsView from "../view/trip-no-events.js";
 import EventPresenter from "./event.js";
-import {
-  filter
-} from "../utils/filter.js";
+import {FILTERS} from "../utils/filter.js";
 import {
   SortType,
   UpdateType,
@@ -63,7 +61,7 @@ export default class Board {
 
     const filterType = this._filterModel.getFilter();
     const events = this._eventsModel.getEvents();
-    const filtredEvents = filter[filterType](events);
+    const filtredEvents = FILTERS[filterType](events);
 
     switch (this._currentSortType) {
       case SortType.TIME:
@@ -137,9 +135,6 @@ export default class Board {
   }
 
   _renderSort() {
-    if (this._tripEventsSortComponent !== null) {
-      this._tripEventsSortComponent = null;
-    }
 
     this._tripEventsSortComponent = new TripEventsSortView(this._currentSortType);
     this._tripEventsSortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
