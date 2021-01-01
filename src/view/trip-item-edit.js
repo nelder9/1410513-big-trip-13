@@ -1,12 +1,26 @@
 import SmartView from "./smart.js";
+import {generateDate} from "../mock/event.js";
+import dayjs from "dayjs";
+import flatpickr from "flatpickr";
+
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
+
+const BLANK_EVENT = {
+  date: generateDate(),
+  type: {name: `bus`, offers: null},
+  time: 50,
+  price: 150,
+  destination: {name: `Geneva`, text: `Geneva is a city in Switzerland that lies at the s…tains, the city has views of dramatic Mont Blanc.`},
+  isFavorite: true
+};
 
 const createTripItemEditTemplate = (data) => {
   const {
     type,
     price,
-    destination
+    destination,
+    time
   } = data;
-
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -89,7 +103,7 @@ const createTripItemEditTemplate = (data) => {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="18/03/19 12:25">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${time}">
                     —
                     <label class="visually-hidden" for="event-end-time-1">To</label>
                     <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="18/03/19 13:35">
@@ -100,7 +114,7 @@ const createTripItemEditTemplate = (data) => {
                       <span class="visually-hidden">Price</span>
                       €
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="number" min="0" max="9999" name="event-price" value="${price}">
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -182,16 +196,30 @@ const createTripItemEditTemplate = (data) => {
 
 
 export default class EventEdit extends SmartView {
-  constructor(event) {
+  constructor(event = BLANK_EVENT) {
     super();
     this._data = EventEdit.parseEventToData(event);
+
+    this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
+    this._dueDateChangeHandler = this._dueDateChangeHandler.bind(this);
     this._destinationInputHandler = this._destinationInputHandler.bind(this);
     this._clickHandler = this._clickHandler.bind(this);
+    this._datepicker = null;
 
     this._setInnerHandlers();
+    this._setDatepicker();
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this._datepicker) {
+      this._datepicker.destroy();
+      this._datepicker = null;
+    }
   }
 
   reset(event) {
@@ -218,6 +246,16 @@ export default class EventEdit extends SmartView {
     this._callback.click();
   }
 
+  _formDeleteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.deleteClick(EventEdit.parseDataToEvent(this._data));
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
+  }
+
   setClickHandler(callback) {
     this._callback.click = callback;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._clickHandler);
@@ -233,8 +271,35 @@ export default class EventEdit extends SmartView {
 
   restoreHandlers() {
     this._setInnerHandlers();
+    this._setDatepicker();
     this.setSubmitFormHandler(this._callback.submitForm);
     this.setClickHandler(this._callback.click);
+    this.setDeleteClickHandler(this._callback.deleteClick);
+  }
+
+  _setDatepicker() {
+    if (this._datepicker) {
+      // В случае обновления компонента удаляем вспомогательные DOM-элементы,
+      // которые создает flatpickr при инициализации
+      this._datepicker.destroy();
+      this._datepicker = null;
+    }
+    // flatpickr есть смысл инициализировать только в случае,
+    // если поле выбора даты доступно для заполнения
+    this._datepicker = flatpickr(this.getElement().querySelector(`#event-start-time-1`), {
+      dateFormat: `d/m/y H:i`,
+      enableTime: true,
+      onChange: this._dueDateChangeHandler // На событие flatpickr передаём наш колбэк
+    }
+    );
+
+  }
+
+  _dueDateChangeHandler([userDate]) {
+
+    this.updateData({
+      time: dayjs(userDate).format(`DD/MM/YYYY HH:mm`)
+    }, true);
   }
 
   _setInnerHandlers() {

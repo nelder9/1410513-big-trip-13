@@ -5,7 +5,7 @@ import {
 } from "../utils/common.js";
 
 
-const generateId = () => Date.now() + Math.ceil(Math.random() * 10000, 10);
+export const generateId = () => Date.now() + Math.ceil(Math.random() * 10000, 10);
 
 const generateDestination = () => {
 
@@ -99,12 +99,13 @@ const generatePrice = () => {
   return getRandomInteger(10, 200);
 };
 
+export const generateDate = () => {
+  const maxDaysGap = 7;
+  const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
+  return dayjs(dayjs().add(daysGap, `day`).toDate());
+};
+
 export const generateEvent = () => {
-  const generateDate = () => {
-    const maxDaysGap = 7;
-    const daysGap = getRandomInteger(-maxDaysGap, maxDaysGap);
-    return dayjs(dayjs().add(daysGap, `day`).toDate()).format(`MMM D`);
-  };
 
   return {
     id: generateId(),
