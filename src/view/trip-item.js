@@ -1,46 +1,56 @@
 import AbstractView from "./abstract.js";
+import dayjs from "dayjs";
 
-const createOfferTemplate = (type) => {
-  if (type.offers) {
-    return `<span class="event__offer-title">${type.offers[1].title}</span>
-    &plus;&euro;&nbsp;
-    <span class="event__offer-price">${type.offers[1].price}</span>`;
+const tripOffers = (offers) => {
+  let offersVar = ``;
+  for (let i = 0; i < offers.length; i++) {
+    offersVar += `<li class="event__offer"><span class="event__offer-title">${offers[i].title}</span> +€&nbsp<span class="event__offer-price">${offers[i].price}</span></li>`;
   }
-  return ``;
+  return offersVar;
 };
 
+const diffTime = (dateFrom, dateTo) => {
+  const date1 = dayjs(dateFrom);
+  const date2 = dayjs(dateTo);
+  let diffD = Math.abs(Math.ceil((date1.diff(date2)) / 1000 / 60 / 60 / 24));
+  let diffH = Math.abs(Math.ceil((date1.diff(date2)) / 1000 / 60 / 60));
+  let diffM = Math.abs(Math.floor((date1.diff(date2)) / 1000 / 60 % 60));
+  if (diffH > 23) {
+    return `${diffD}D ${Math.ceil(diffH % 24)}H ${diffM}M`;
+  }
+  return `${diffH}H ${diffM}M`;
+};
 
 const createTripItemTemplate = (event) => {
-
   const {
-    date,
     type,
     price,
-    destination,
     isFavorite,
-    time
+    dateFrom,
+    dateTo,
+    destination,
+    offers
   } = event;
 
-  const favoriteClassName = isFavorite
-    ? `event__favorite-btn--active`
-    : ``;
+  const favoriteClassName = isFavorite ?
+    `event__favorite-btn--active` :
+    ``;
 
-  const offerTemplate = createOfferTemplate(type);
 
   return `<li class="trip-events__item">
     <div class="event">
-      <time class="event__date" datetime="2019-03-18">${date.format(`MMM D`)}</time>
+      <time class="event__date" datetime="2019-03-18">${dayjs(dateFrom).format(`D MMM`)}</time>
       <div class="event__type">
-        <img class="event__type-icon" width="42" height="42" src="img/icons/${type.name}.png" alt="Event type icon">
+        <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">${type.name} ${destination.name}</h3>
+      <h3 class="event__title">${type}${` `}${destination.name}</h3>
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
+          <time class="event__start-time" datetime="2019-03-18T10:30">${dayjs(dateFrom).format(`HH:mm`)}</time>
           &mdash;
-          <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
+          <time class="event__end-time" datetime="2019-03-18T11:00">${dayjs(dateTo).format(`HH:mm`)}</time>
         </p>
-        <p class="event__duration">${time}</p>
+        <p class="event__duration">${diffTime(dateFrom, dateTo)}</p>
       </div>
       <p class="event__price">
         &euro;&nbsp;<span class="event__price-value">${price}</span>
@@ -48,7 +58,7 @@ const createTripItemTemplate = (event) => {
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
         <li class="event__offer">
-        ${offerTemplate}
+        <span class="event__offer-title">${tripOffers(offers)}</span>
         </li>
       </ul>
       <button class="event__favorite-btn ${favoriteClassName}" type="button">

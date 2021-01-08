@@ -1,8 +1,9 @@
 import TripEventsSortView from "../view/trip-events-sort.js";
 import EventNewPresenter from "./event-new.js";
+import LoadingView from "../view/loading.js";
+import EventPresenter, {State as EventPresenterViewState} from "./event.js";
 import TripWrapperView from "../view/trip-wrapper.js";
 import TripNoEventsView from "../view/trip-no-events.js";
-import EventPresenter from "./event.js";
 import {FILTERS} from "../utils/filter.js";
 import {
   SortType,
@@ -21,11 +22,13 @@ import {
 } from "../utils/render.js";
 
 export default class Board {
-  constructor(boardContainer, eventsModel, filterModel) {
+  constructor(boardContainer, eventsModel, filterModel, api) {
     this._eventsModel = eventsModel;
     this._filterModel = filterModel;
     this._boardContainer = boardContainer;
     this._eventPresenter = {};
+    this._api = api;
+    this._isLoading = true;
 
     this._tripEventsSortComponent = null;
 
@@ -33,15 +36,12 @@ export default class Board {
 
     this._tripNoEventsComponent = new TripNoEventsView();
     this._tripWrapperComponent = new TripWrapperView();
+    this._loadingComponent = new LoadingView();
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
-    this._handleEventChange = this._handleEventChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-
-    this._eventsModel.addObserver(this._handleModelEvent);
-    this._filterModel.addObserver(this._handleModelEvent);
 
     this._eventNewPresenter = new EventNewPresenter(this._tripWrapperComponent, this._handleViewAction);
   }
@@ -49,7 +49,19 @@ export default class Board {
   init() {
     render(this._boardContainer, this._tripWrapperComponent, RenderPosition.BEFOREEND);
 
+    this._eventsModel.addObserver(this._handleModelEvent);
+    this._filterModel.addObserver(this._handleModelEvent);
+
     this._renderBoard();
+  }
+
+  destroy() {
+    this._clearBoard({resetSortType: true});
+
+    remove(this._tripWrapperComponent);
+
+    this._eventsModel.removeObserver(this._handleModelEvent);
+    this._filterModel.removeObserver(this._handleModelEvent);
   }
 
   createEvent() {
@@ -57,12 +69,12 @@ export default class Board {
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this._eventNewPresenter.init();
   }
+
   _getEvents() {
 
     const filterType = this._filterModel.getFilter();
     const events = this._eventsModel.getEvents();
     const filtredEvents = FILTERS[filterType](events);
-
     switch (this._currentSortType) {
       case SortType.TIME:
         return filtredEvents.sort(sortEventByTime);
@@ -74,13 +86,10 @@ export default class Board {
   }
 
   _handleModeChange() {
+    this._eventNewPresenter.destroy();
     Object
       .values(this._eventPresenter)
       .forEach((presenter) => presenter.resetView());
-  }
-
-  _handleEventChange(updatedEvent) {
-    this._eventPresenter[updatedEvent.id].init(updatedEvent);
   }
 
   _handleSortTypeChange(sortType) {
@@ -96,13 +105,36 @@ export default class Board {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
-        this._eventsModel.updateEvent(updateType, update);
+        this._eventPresenter[update.id].setViewState(EventPresenterViewState.SAVING);
+        this._api.updateEvent(update)
+        .then((response) => {
+          // Не могу понять, почему сначала меняется дом элемент, а только потом данные
+          this._eventsModel.updateEvent(updateType, response);
+        }).catch(() => {
+          this._eventPresenter[update.id].setViewState(EventPresenterViewState.ABORTING);
+        });
         break;
       case UserAction.ADD_EVENT:
-        this._eventsModel.addEvent(updateType, update);
+        this._eventNewPresenter.setSaving();
+        this._api.addEvent(update)
+        // а вот здесь все норм работает
+          .then((response) => {
+            this._eventsModel.addEvent(updateType, response);
+          })
+          .catch(() => {
+            this._eventNewPresenter.setAborting();
+          });
         break;
       case UserAction.DELETE_EVENT:
-        this._eventsModel.deleteEvent(updateType, update);
+        this._eventPresenter[update.id].setViewState(EventPresenterViewState.DELETING);
+        this._api.deleteEvent(update)
+        // и вот здесь все норм работает
+          .then(() => {
+            this._eventsModel.deleteEvent(updateType, update);
+          })
+          .catch(() => {
+            this._eventPresenter[update.id].setViewState(EventPresenterViewState.ABORTING);
+          });
         break;
     }
   }
@@ -122,14 +154,28 @@ export default class Board {
         });
         this._renderBoard();
         break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
+        this._renderBoard();
+        break;
     }
   }
 
   _renderBoard() {
-    if (!this._getEvents().length) {
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
+
+    const events = this._getEvents();
+    const eventCount = events.length;
+
+    if (eventCount === 0) {
       this._renderNoEvents();
       return;
     }
+
     this._renderSort();
     this._renderEvents(this._getEvents());
   }
@@ -150,6 +196,10 @@ export default class Board {
     events.forEach((event) => this._renderEvent(event));
   }
 
+  _renderLoading() {
+    render(this._boardContainer, this._loadingComponent, RenderPosition.AFTERBEGIN);
+  }
+
   _renderEvent(event) {
     const eventPresenter = new EventPresenter(this._tripWrapperComponent, this._handleViewAction, this._handleModeChange);
     eventPresenter.init(event);
@@ -160,11 +210,15 @@ export default class Board {
     resetSortType = false
   } = {}) {
 
+    this._eventNewPresenter.destroy();
+
     Object
       .values(this._eventPresenter)
       .forEach((presenter) => presenter.destroy());
     this._eventPresenter = {};
 
+    remove(this._tripNoEventsComponent);
+    remove(this._loadingComponent);
     remove(this._tripEventsSortComponent);
 
     if (resetSortType) {

@@ -19,5 +19,6 @@ export const sortEventByPrice = (eventA, eventB) => {
 };
 
 export const sortEventByTime = (eventA, eventB) => {
-  return dayjs(eventB.time).diff(dayjs(eventA.time));
+  return dayjs(dayjs(eventA.dateFrom).diff(dayjs(eventA.dateTo))).diff(dayjs(dayjs(eventB.dateFrom).diff(dayjs(eventB.dateTo))));
 };
+

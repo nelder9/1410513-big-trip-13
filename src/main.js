@@ -3,19 +3,22 @@ import TripTabsView from "./view/trip-tabs.js";
 import EventsModel from "./model/events.js";
 import FilterModel from "./model/filter.js";
 import FilterPresenter from "./presenter/filter.js";
-import {render, RenderPosition} from "./utils/render.js";
-import BoardPresenter from "./presenter/board.js";
+import {UpdateType} from "./const.js";
 import {
-  generateEvent
-} from "./mock/event.js";
-import {sortEventByDays} from "./utils/event.js";
+  render,
+  RenderPosition
+} from "./utils/render.js";
+import BoardPresenter from "./presenter/board.js";
 
-const ITEM_COUNT = 5;
+import Api from "./api.js";
 
-const events = new Array(ITEM_COUNT).fill().map(generateEvent).sort(sortEventByDays);
+const AUTHORIZATION = `Basic hS6sd4dfSwyl9sb7j`;
+const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
+
+const api = new Api(END_POINT, AUTHORIZATION);
 
 const eventsModel = new EventsModel();
-eventsModel.setEvents(events);
+
 
 const filterModel = new FilterModel();
 
@@ -27,7 +30,7 @@ render(siteTripMainElement, new TripInfoView().getElement(), RenderPosition.AFTE
 render(siteTripControlsElement, new TripTabsView().getElement(), RenderPosition.AFTERBEGIN);
 
 
-const boardPresenter = new BoardPresenter(siteTripEventsElement, eventsModel, filterModel);
+const boardPresenter = new BoardPresenter(siteTripEventsElement, eventsModel, filterModel, api);
 const filterPresenter = new FilterPresenter(siteTripControlsElement, filterModel);
 
 filterPresenter.init();
@@ -38,3 +41,10 @@ document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (e
   boardPresenter.createEvent();
 });
 
+api.getEvents()
+  .then((events) => {
+    eventsModel.setEvents(UpdateType.INIT, events);
+  })
+  .catch(() => {
+    eventsModel.setEvents(UpdateType.INIT, []);
+  });

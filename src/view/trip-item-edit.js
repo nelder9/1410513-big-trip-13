@@ -1,26 +1,74 @@
 import SmartView from "./smart.js";
-import {generateDate} from "../mock/event.js";
+import {
+  TYPES
+} from "../const.js";
 import dayjs from "dayjs";
 import flatpickr from "flatpickr";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_EVENT = {
-  date: generateDate(),
-  type: {name: `bus`, offers: null},
-  time: 50,
+  dateFrom: `2021-01-05T01:50:44.503Z`,
+  dateTo: `2021-01-05T15:04:17.706Z`,
+  destination: {
+    description: `Geneva, in a middle of Europe.`,
+    name: `Geneva`,
+    pictures: [
+      {
+        description: `Berlin embankment`,
+        src: `http://picsum.photos/300/200?r=0.72273779502398`
+      },
+      {
+        description: `Berlin embankment`,
+        src: `http://picsum.photos/300/200?r=0.6354874215537865`
+      }
+    ]
+  },
+  isFavorite: true,
+  offers: [
+    {
+      title: `Choose comfort class`,
+      price: 110
+    },
+    {
+      title: `Choose business class`,
+      price: 180
+    }
+  ],
   price: 150,
-  destination: {name: `Geneva`, text: `Geneva is a city in Switzerland that lies at the s…tains, the city has views of dramatic Mont Blanc.`},
-  isFavorite: true
+  type: `ship`
+};
+
+const createEventEditTypeTemplate = (currentType) => {
+  return TYPES.map((type) => `<div class="event__type-item">
+<input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${currentType === type ? `checked` : ``}>
+<label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
+</div>`).join(``);
 };
 
 const createTripItemEditTemplate = (data) => {
   const {
     type,
     price,
+    dateFrom,
+    dateTo,
     destination,
-    time
+    isSaving,
+    isDeleting
   } = data;
+  const typesTemplate = createEventEditTypeTemplate(type);
+
+  const getPic = (dest) => {
+    let pic = ``;
+    if (dest.pictures.length) {
+      for (let i = 0; i < dest.pictures.length; i++) {
+        pic += `<img class="event__photo" src="${dest.pictures[i].src}" alt="${dest.pictures[i].description}"></img>`;
+      }
+    }
+    return `<div class="event__photos-container">
+    <div class="event__photos-tape">${pic}</div>
+    </div>`;
+  };
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -28,70 +76,21 @@ const createTripItemEditTemplate = (data) => {
                   <div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
                       <span class="visually-hidden">Choose event type</span>
-                      <img class="event__type-icon" width="17" height="17" src="img/icons/${type.name}.png" alt="Event type icon">
+                      <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
                     </label>
                     <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
-
-                        <div class="event__type-item">
-                          <input id="event-type-taxi-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="taxi">
-                          <label class="event__type-label  event__type-label--taxi" for="event-type-taxi-1">Taxi</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-bus-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="bus">
-                          <label class="event__type-label  event__type-label--bus" for="event-type-bus-1">Bus</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-train-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="train">
-                          <label class="event__type-label  event__type-label--train" for="event-type-train-1">Train</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-ship-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="ship">
-                          <label class="event__type-label  event__type-label--ship" for="event-type-ship-1">Ship</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-transport-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="transport">
-                          <label class="event__type-label  event__type-label--transport" for="event-type-transport-1">Transport</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-drive-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="drive">
-                          <label class="event__type-label  event__type-label--drive" for="event-type-drive-1">Drive</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-flight-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="flight" checked="">
-                          <label class="event__type-label  event__type-label--flight" for="event-type-flight-1">Flight</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in">
-                          <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing">
-                          <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-                        </div>
-
-                        <div class="event__type-item">
-                          <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
-                          <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-                        </div>
+                        ${typesTemplate}
                       </fieldset>
                     </div>
                   </div>
 
                   <div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
-                      ${type.name}
+                      ${type}
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
                     <datalist id="destination-list-1">
@@ -103,10 +102,10 @@ const createTripItemEditTemplate = (data) => {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${time}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom}">
                     —
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="18/03/19 13:35">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -117,8 +116,8 @@ const createTripItemEditTemplate = (data) => {
                     <input class="event__input  event__input--price" id="event-price-1" type="number" min="0" max="9999" name="event-price" value="${price}">
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Delete</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? `Saving...` : `Save`}</button>
+                  <button class="event__reset-btn" type="reset">${isDeleting ? `Deleting...` : `Delete`}</button>
                   <button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
                   </button>
@@ -178,16 +177,8 @@ const createTripItemEditTemplate = (data) => {
 
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${destination.text}</p>
-                    <div class="event__photos-container">
-                      <div class="event__photos-tape">
-                        <img class="event__photo" src="img/photos/1.jpg" alt="Event photo">
-                        <img class="event__photo" src="img/photos/2.jpg" alt="Event photo">
-                        <img class="event__photo" src="img/photos/3.jpg" alt="Event photo">
-                        <img class="event__photo" src="img/photos/4.jpg" alt="Event photo">
-                        <img class="event__photo" src="img/photos/5.jpg" alt="Event photo">
-                      </div>
-                    </div>
+                    <p class="event__destination-description">${destination.description}</p>
+                    ${getPic(destination)}
                   </section>
                 </section>
               </form>
@@ -204,7 +195,8 @@ export default class EventEdit extends SmartView {
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
-    this._dueDateChangeHandler = this._dueDateChangeHandler.bind(this);
+    this._dueDateChangeHandlerFrom = this._dueDateChangeHandlerFrom.bind(this);
+    this._dueDateChangeHandlerTo = this._dueDateChangeHandlerTo.bind(this);
     this._destinationInputHandler = this._destinationInputHandler.bind(this);
     this._clickHandler = this._clickHandler.bind(this);
     this._datepicker = null;
@@ -262,11 +254,19 @@ export default class EventEdit extends SmartView {
   }
 
   static parseEventToData(event) {
-    return Object.assign({}, event);
+    return Object.assign({}, event, {
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false
+    });
   }
 
   static parseDataToEvent(data) {
-    return Object.assign({}, data);
+    data = Object.assign({}, data);
+    delete data.isDisabled;
+    delete data.isSaving;
+    delete data.isDeleting;
+    return data;
   }
 
   restoreHandlers() {
@@ -279,26 +279,30 @@ export default class EventEdit extends SmartView {
 
   _setDatepicker() {
     if (this._datepicker) {
-      // В случае обновления компонента удаляем вспомогательные DOM-элементы,
-      // которые создает flatpickr при инициализации
       this._datepicker.destroy();
       this._datepicker = null;
     }
-    // flatpickr есть смысл инициализировать только в случае,
-    // если поле выбора даты доступно для заполнения
     this._datepicker = flatpickr(this.getElement().querySelector(`#event-start-time-1`), {
       dateFormat: `d/m/y H:i`,
       enableTime: true,
-      onChange: this._dueDateChangeHandler // На событие flatpickr передаём наш колбэк
-    }
-    );
-
+      onChange: this._dueDateChangeHandlerFrom
+    });
+    this._datepicker = flatpickr(this.getElement().querySelector(`#event-end-time-1`), {
+      dateFormat: `d/m/y H:i`,
+      enableTime: true,
+      onChange: this._dueDateChangeHandlerTo
+    });
   }
 
-  _dueDateChangeHandler([userDate]) {
+  _dueDateChangeHandlerFrom([userDate]) {
+    this.updateData({
+      dateFrom: dayjs(userDate).toJSON()
+    }, true);
+  }
+  _dueDateChangeHandlerTo([userDate]) {
 
     this.updateData({
-      time: dayjs(userDate).format(`DD/MM/YYYY HH:mm`)
+      dateTo: dayjs(userDate).toJSON()
     }, true);
   }
 
@@ -328,9 +332,7 @@ export default class EventEdit extends SmartView {
   _typeChangeHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      type: {
-        name: evt.target.value
-      }
+      type: evt.target.value
     });
   }
 
