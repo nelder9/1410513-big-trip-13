@@ -8,7 +8,6 @@ export default class EventNew {
     this._changeData = changeData;
 
     this._eventEditComponent = null;
-    // this._destroyCallback = null;
 
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
@@ -16,7 +15,6 @@ export default class EventNew {
   }
 
   init() {
-    // this._destroyCallback = callback;
 
     if (this._eventEditComponent !== null) {
       return;

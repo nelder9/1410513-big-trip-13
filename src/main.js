@@ -12,7 +12,7 @@ import BoardPresenter from "./presenter/board.js";
 
 import Api from "./api.js";
 
-const AUTHORIZATION = `Basic hS6sd4dfSwyl9sb7j`;
+const AUTHORIZATION = `Basic hS6sd4dfSwyl9sb9j`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
 
 const api = new Api(END_POINT, AUTHORIZATION);
