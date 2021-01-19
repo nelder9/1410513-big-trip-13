@@ -6,6 +6,7 @@ export default class EventNew {
   constructor(eventListContainer, changeData) {
     this._eventListContainer = eventListContainer;
     this._changeData = changeData;
+    this._destroyCallback = null;
 
     this._eventEditComponent = null;
 
@@ -14,7 +15,8 @@ export default class EventNew {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init() {
+  init(callback) {
+    this._destroyCallback = callback;
 
     if (this._eventEditComponent !== null) {
       return;
@@ -34,13 +36,13 @@ export default class EventNew {
       return;
     }
 
-    /* if (this._destroyCallback !== null) {
+    if (this._destroyCallback !== null) {
       this._destroyCallback();
-    } */
+    }
 
     remove(this._eventEditComponent);
     this._eventEditComponent = null;
-
+    document.querySelector(`.trip-main__event-add-btn`).disabled = false;
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
@@ -79,6 +81,7 @@ export default class EventNew {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
       this.destroy();
+      document.querySelector(`.trip-main__event-add-btn`).disabled = false;
     }
   }
 }

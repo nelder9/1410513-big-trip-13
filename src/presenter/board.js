@@ -8,8 +8,7 @@ import {FILTERS} from "../utils/filter.js";
 import {
   SortType,
   UpdateType,
-  UserAction,
-  FilterType
+  UserAction
 } from "../const.js";
 import {
   sortEventByPrice,
@@ -64,10 +63,8 @@ export default class Board {
     this._filterModel.removeObserver(this._handleModelEvent);
   }
 
-  createEvent() {
-    this._currentSortType = SortType.DEFAULT;
-    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this._eventNewPresenter.init();
+  createEvent(callback) {
+    this._eventNewPresenter.init(callback);
   }
 
   _getEvents() {
@@ -108,7 +105,6 @@ export default class Board {
         this._eventPresenter[update.id].setViewState(EventPresenterViewState.SAVING);
         this._api.updateEvent(update)
         .then((response) => {
-          // Не могу понять, почему сначала меняется дом элемент, а только потом данные
           this._eventsModel.updateEvent(updateType, response);
         }).catch(() => {
           this._eventPresenter[update.id].setViewState(EventPresenterViewState.ABORTING);
@@ -117,9 +113,9 @@ export default class Board {
       case UserAction.ADD_EVENT:
         this._eventNewPresenter.setSaving();
         this._api.addEvent(update)
-        // а вот здесь все норм работает
           .then((response) => {
             this._eventsModel.addEvent(updateType, response);
+            document.querySelector(`.trip-main__event-add-btn`).disabled = false;
           })
           .catch(() => {
             this._eventNewPresenter.setAborting();
@@ -128,9 +124,9 @@ export default class Board {
       case UserAction.DELETE_EVENT:
         this._eventPresenter[update.id].setViewState(EventPresenterViewState.DELETING);
         this._api.deleteEvent(update)
-        // и вот здесь все норм работает
           .then(() => {
             this._eventsModel.deleteEvent(updateType, update);
+            document.querySelector(`.trip-main__event-add-btn`).disabled = false;
           })
           .catch(() => {
             this._eventPresenter[update.id].setViewState(EventPresenterViewState.ABORTING);
@@ -149,9 +145,7 @@ export default class Board {
         this._renderBoard();
         break;
       case UpdateType.MAJOR:
-        this._clearBoard({
-          resetSortType: true
-        });
+        this._clearBoard({resetSortType: true});
         this._renderBoard();
         break;
       case UpdateType.INIT:
@@ -177,10 +171,14 @@ export default class Board {
     }
 
     this._renderSort();
-    this._renderEvents(this._getEvents());
+    this._renderEvents(events);
   }
 
   _renderSort() {
+
+    if (this._sortComponent !== null) {
+      this._sortComponent = null;
+    }
 
     this._tripEventsSortComponent = new TripEventsSortView(this._currentSortType);
     this._tripEventsSortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
@@ -206,9 +204,7 @@ export default class Board {
     this._eventPresenter[event.id] = eventPresenter;
   }
 
-  _clearBoard({
-    resetSortType = false
-  } = {}) {
+  _clearBoard({resetSortType = false} = {}) {
 
     this._eventNewPresenter.destroy();
 

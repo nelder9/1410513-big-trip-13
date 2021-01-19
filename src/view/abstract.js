@@ -1,6 +1,6 @@
 import {createElement} from "../utils/render.js";
 
-const SHAKE_ANIMATION_TIMEOUT = 6000;
+const SHAKE_ANIMATION_TIMEOUT = 600;
 
 export default class Abstract {
   constructor() {
