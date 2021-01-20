@@ -1,5 +1,4 @@
 import EventEditView from "../view/trip-item-edit.js";
-import {generateId} from "../mock/event.js";
 import {remove, render, RenderPosition} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 
@@ -7,21 +6,23 @@ export default class EventNew {
   constructor(eventListContainer, changeData) {
     this._eventListContainer = eventListContainer;
     this._changeData = changeData;
+    this._destroyCallback = null;
 
     this._eventEditComponent = null;
-    this._destroyCallback = null;
 
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init() {
+  init(callback) {
+    this._destroyCallback = callback;
+
     if (this._eventEditComponent !== null) {
       return;
     }
-    this._eventEditComponent = new EventEditView();
 
+    this._eventEditComponent = new EventEditView();
     this._eventEditComponent.setSubmitFormHandler(this._handleFormSubmit);
     this._eventEditComponent.setDeleteClickHandler(this._handleDeleteClick);
 
@@ -35,9 +36,13 @@ export default class EventNew {
       return;
     }
 
+    if (this._destroyCallback !== null) {
+      this._destroyCallback();
+    }
+
     remove(this._eventEditComponent);
     this._eventEditComponent = null;
-
+    document.querySelector(`.trip-main__event-add-btn`).disabled = false;
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
@@ -45,11 +50,27 @@ export default class EventNew {
     this._changeData(
         UserAction.ADD_EVENT,
         UpdateType.MINOR,
-        // Пока у нас нет сервера, который бы после сохранения
-        // выдывал честный id задачи, нам нужно позаботиться об этом самим
-        Object.assign({id: generateId()}, event)
+        event
     );
-    this.destroy();
+  }
+
+  setSaving() {
+    this._eventEditComponent.updateData({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this._eventEditComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    this._eventEditComponent.shake(resetFormState);
   }
 
   _handleDeleteClick() {
@@ -60,6 +81,7 @@ export default class EventNew {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
       this.destroy();
+      document.querySelector(`.trip-main__event-add-btn`).disabled = false;
     }
   }
 }
