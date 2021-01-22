@@ -8,7 +8,8 @@ import {FILTERS} from "../utils/filter.js";
 import {
   SortType,
   UpdateType,
-  UserAction
+  UserAction,
+  FilterType
 } from "../const.js";
 import {
   sortEventByPrice,
@@ -21,10 +22,12 @@ import {
 } from "../utils/render.js";
 
 export default class Board {
-  constructor(boardContainer, eventsModel, filterModel, api) {
+  constructor(boardContainer, eventsModel, filterModel, api, destinationsModel, offersModel) {
     this._eventsModel = eventsModel;
     this._filterModel = filterModel;
     this._boardContainer = boardContainer;
+    this._destinationsModel = destinationsModel;
+    this._offersModel = offersModel;
     this._eventPresenter = {};
     this._api = api;
     this._isLoading = true;
@@ -41,6 +44,9 @@ export default class Board {
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+
+    this._destinationsModel.addObserver(this._handleModelEvent);
+    this._offersModel.addObserver(this._handleModelEvent);
 
     this._eventNewPresenter = new EventNewPresenter(this._tripWrapperComponent, this._handleViewAction);
   }
@@ -64,11 +70,14 @@ export default class Board {
   }
 
   createEvent(callback) {
-    this._eventNewPresenter.init(callback);
+    const destinations = Object.assign({}, this._destinationsModel.getDestinations());
+    const offers = Object.assign({}, this._offersModel.getOffers());
+    this._currentSortType = SortType.DEFAULT;
+    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this._eventNewPresenter.init(callback, destinations, offers);
   }
 
   _getEvents() {
-
     const filterType = this._filterModel.getFilter();
     const events = this._eventsModel.getEvents();
     const filtredEvents = FILTERS[filterType](events);
@@ -199,7 +208,7 @@ export default class Board {
   }
 
   _renderEvent(event) {
-    const eventPresenter = new EventPresenter(this._tripWrapperComponent, this._handleViewAction, this._handleModeChange);
+    const eventPresenter = new EventPresenter(this._tripWrapperComponent, this._handleViewAction, this._handleModeChange, this._destinationsModel, this._offersModel);
     eventPresenter.init(event);
     this._eventPresenter[event.id] = eventPresenter;
   }

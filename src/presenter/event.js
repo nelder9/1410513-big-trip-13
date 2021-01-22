@@ -25,10 +25,13 @@ export const State = {
 };
 
 export default class Event {
-  constructor(eventListContainer, changeData, changeMode) {
+  constructor(eventListContainer, changeData, changeMode, _destinationsModel, _offersModel) {
     this._eventListContainer = eventListContainer;
     this._changeData = changeData;
     this._changeMode = changeMode;
+
+    this.destinations = Object.assign({}, _destinationsModel.getDestinations());
+    this.offers = Object.assign({}, _offersModel.getOffers());
 
     this._eventComponent = null;
     this._eventEditComponent = null;
@@ -42,14 +45,17 @@ export default class Event {
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
   }
 
-  init(event) {
+  init(event, destinations, offers) {
     this._event = event;
+
+    this._destinations = destinations;
+    this._offers = offers;
 
     const prevEventComponent = this._eventComponent;
     const prevEventEditComponent = this._eventEditComponent;
 
     this._eventComponent = new TripItemView(event);
-    this._eventEditComponent = new TripItemEditView(event);
+    this._eventEditComponent = new TripItemEditView(event, this.destinations, this.offers);
 
     this._eventEditComponent.setDeleteClickHandler(this._handleDeleteClick);
     this._eventComponent.setClickHandler(this._handleEditClick);

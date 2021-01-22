@@ -22,3 +22,7 @@ export const sortEventByTime = (eventA, eventB) => {
   return dayjs(dayjs(eventA.dateFrom).diff(dayjs(eventA.dateTo))).diff(dayjs(dayjs(eventB.dateFrom).diff(dayjs(eventB.dateTo))));
 };
 
+export const humanizeEditEventTime = (dueDate) => {
+  return dayjs(dueDate).format(`DD/MM/YYYY HH:mm`);
+};
+

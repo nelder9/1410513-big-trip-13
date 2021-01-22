@@ -1,10 +1,7 @@
 import SmartView from "./smart.js";
-import {
-  TYPES
-} from "../const.js";
 import dayjs from "dayjs";
 import flatpickr from "flatpickr";
-
+import {humanizeEditEventTime} from "../utils/event.js";
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_EVENT = {
@@ -39,14 +36,9 @@ const BLANK_EVENT = {
   type: `ship`
 };
 
-const createEventEditTypeTemplate = (currentType) => {
-  return TYPES.map((type) => `<div class="event__type-item">
-<input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${currentType === type ? `checked` : ``}>
-<label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
-</div>`).join(``);
-};
-
-const createTripItemEditTemplate = (data) => {
+const createTripItemEditTemplate = (data, destinations, serverOffers) => {
+  // console.log(serverOffers);
+  // Криво доходят до сюда destinations, serverOffers, не могу понять в чем дело((( в консоле при старте приложения, через раз выскакивает ошибка
   const {
     type,
     price,
@@ -54,9 +46,34 @@ const createTripItemEditTemplate = (data) => {
     dateTo,
     destination,
     isSaving,
-    isDeleting
+    isDeleting,
+    isDisabled
   } = data;
-  const typesTemplate = createEventEditTypeTemplate(type);
+
+  const createEventTypeItems = () => {
+    const types = Object.values(serverOffers).map((item) => item);
+    return `
+      ${types.map(({type}) => `
+        <div class="event__type-item">
+          <input
+            id="event-type-${type}"
+            class="event__type-input visually-hidden"
+            type="radio"
+            name="event-type"
+            value="${type}"
+            ${isDisabled ? `disabled` : ``}
+          >
+          <label
+            class="event__type-label event__type-label--${type}"
+            for="event-type-${type}"
+          >
+            ${type}
+          </label>
+        </div>
+      `).join(``)}
+    `;
+  };
+  const eventTypeItems = createEventTypeItems();
 
   const getPic = (dest) => {
     let pic = ``;
@@ -83,7 +100,7 @@ const createTripItemEditTemplate = (data) => {
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
-                        ${typesTemplate}
+                        ${eventTypeItems}
                       </fieldset>
                     </div>
                   </div>
@@ -102,10 +119,10 @@ const createTripItemEditTemplate = (data) => {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${humanizeEditEventTime(dateFrom)}">
                     —
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo}">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${humanizeEditEventTime(dateTo)}">
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -123,57 +140,7 @@ const createTripItemEditTemplate = (data) => {
                   </button>
                 </header>
                 <section class="event__details">
-                  <section class="event__section  event__section--offers">
-                    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-                    <div class="event__available-offers">
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" checked="">
-                        <label class="event__offer-label" for="event-offer-luggage-1">
-                          <span class="event__offer-title">Add luggage</span>
-                          +€&nbsp;
-                          <span class="event__offer-price">50</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-comfort-1" type="checkbox" name="event-offer-comfort" checked="">
-                        <label class="event__offer-label" for="event-offer-comfort-1">
-                          <span class="event__offer-title">Switch to comfort</span>
-                          +€&nbsp;
-                          <span class="event__offer-price">80</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-meal-1" type="checkbox" name="event-offer-meal">
-                        <label class="event__offer-label" for="event-offer-meal-1">
-                          <span class="event__offer-title">Add meal</span>
-                          +€&nbsp;
-                          <span class="event__offer-price">15</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-seats-1" type="checkbox" name="event-offer-seats">
-                        <label class="event__offer-label" for="event-offer-seats-1">
-                          <span class="event__offer-title">Choose seats</span>
-                          +€&nbsp;
-                          <span class="event__offer-price">5</span>
-                        </label>
-                      </div>
-
-                      <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-train-1" type="checkbox" name="event-offer-train">
-                        <label class="event__offer-label" for="event-offer-train-1">
-                          <span class="event__offer-title">Travel by train</span>
-                          +€&nbsp;
-                          <span class="event__offer-price">40</span>
-                        </label>
-                      </div>
-                    </div>
-                  </section>
+                  
 
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
@@ -187,10 +154,11 @@ const createTripItemEditTemplate = (data) => {
 
 
 export default class EventEdit extends SmartView {
-  constructor(event = BLANK_EVENT) {
+  constructor(event = BLANK_EVENT, destinations, offers) {
     super();
+    this._destinations = Object.assign({}, destinations);
+    this._offers = Object.assign({}, offers);
     this._data = EventEdit.parseEventToData(event);
-
     this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
@@ -220,7 +188,7 @@ export default class EventEdit extends SmartView {
   }
 
   getTemplate() {
-    return createTripItemEditTemplate(this._data);
+    return createTripItemEditTemplate(this._data, this._destinations, this._offers);
   }
 
   _formSubmitHandler(evt) {
@@ -285,10 +253,13 @@ export default class EventEdit extends SmartView {
     this._datepicker = flatpickr(this.getElement().querySelector(`#event-start-time-1`), {
       dateFormat: `d/m/y H:i`,
       enableTime: true,
+      defaultDate: this._data.dateFrom,
       onChange: this._dueDateChangeHandlerFrom
     });
     this._datepicker = flatpickr(this.getElement().querySelector(`#event-end-time-1`), {
+      minDate: this._data.dateFrom,
       dateFormat: `d/m/y H:i`,
+      defaultDate: this._data.dateFrom,
       enableTime: true,
       onChange: this._dueDateChangeHandlerTo
     });
@@ -296,13 +267,13 @@ export default class EventEdit extends SmartView {
 
   _dueDateChangeHandlerFrom([userDate]) {
     this.updateData({
-      dateFrom: dayjs(userDate).toJSON()
-    }, true);
+      dateFrom: dayjs(userDate).hour(23).minute(59).second(59).toDate()
+    });
   }
   _dueDateChangeHandlerTo([userDate]) {
 
     this.updateData({
-      dateTo: dayjs(userDate).toJSON()
+      dateTo: dayjs(userDate).hour(23).minute(59).second(59).toDate()
     }, true);
   }
 

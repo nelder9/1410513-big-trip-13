@@ -18,6 +18,20 @@ export default class Api {
     this._authorization = authorization;
   }
 
+  getOffers() {
+    return this._load({
+      url: `offers`
+    })
+      .then(Api.toJson);
+  }
+
+  getDestinations() {
+    return this._load({
+      url: `destinations`
+    })
+      .then(Api.toJson);
+  }
+
   getEvents() {
     return this._load({
       url: `points`
@@ -68,8 +82,11 @@ export default class Api {
     headers.append(`Authorization`, this._authorization);
 
     return fetch(
-        `${this._endPoint}/${url}`,
-        {method, body, headers}
+        `${this._endPoint}/${url}`, {
+          method,
+          body,
+          headers
+        }
     )
       .then(Api.checkStatus)
       .catch(Api.catchError);
