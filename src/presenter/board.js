@@ -70,8 +70,8 @@ export default class Board {
   }
 
   createEvent(callback) {
-    const destinations = Object.assign({}, this._destinationsModel.getDestinations());
-    const offers = Object.assign({}, this._offersModel.getOffers());
+    const destinations = (this._destinationsModel.getDestinations()).slice();
+    const offers = (this._offersModel.getOffers()).slice();
     this._currentSortType = SortType.DEFAULT;
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this._eventNewPresenter.init(callback, destinations, offers);
@@ -173,13 +173,12 @@ export default class Board {
 
     const events = this._getEvents();
     const eventCount = events.length;
-
+    this._renderSort();
     if (eventCount === 0) {
       this._renderNoEvents();
       return;
     }
 
-    this._renderSort();
     this._renderEvents(events);
   }
 

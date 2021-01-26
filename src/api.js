@@ -22,14 +22,14 @@ export default class Api {
     return this._load({
       url: `offers`
     })
-      .then(Api.toJson);
+      .then(Api.toJSON);
   }
 
   getDestinations() {
     return this._load({
       url: `destinations`
     })
-      .then(Api.toJson);
+      .then(Api.toJSON);
   }
 
   getEvents() {

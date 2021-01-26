@@ -13,6 +13,8 @@ export const Type = {
   RESTAURANT: `restaurant`
 };
 
+export const TYPES = Object.values(Type);
+
 export const SortType = {
   DEFAULT: `default`,
   TIME: `time`,

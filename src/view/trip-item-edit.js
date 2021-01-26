@@ -1,44 +1,89 @@
 import SmartView from "./smart.js";
 import dayjs from "dayjs";
 import flatpickr from "flatpickr";
-import {humanizeEditEventTime} from "../utils/event.js";
+import {
+  humanizeEditEventTime
+} from "../utils/event.js";
+import {
+  TYPES
+} from "../const.js";
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
-const BLANK_EVENT = {
-  dateFrom: `2021-01-05T01:50:44.503Z`,
-  dateTo: `2021-01-05T15:04:17.706Z`,
-  destination: {
-    description: `Geneva, in a middle of Europe.`,
-    name: `Geneva`,
-    pictures: [
-      {
-        description: `Berlin embankment`,
-        src: `http://picsum.photos/300/200?r=0.72273779502398`
-      },
-      {
-        description: `Berlin embankment`,
-        src: `http://picsum.photos/300/200?r=0.6354874215537865`
-      }
-    ]
-  },
-  isFavorite: true,
-  offers: [
-    {
-      title: `Choose comfort class`,
-      price: 110
-    },
-    {
-      title: `Choose business class`,
-      price: 180
-    }
-  ],
-  price: 150,
-  type: `ship`
+const createEventEditTypeTemplate = (currentType) => {
+  return TYPES.map((type) => `<div class="event__type-item">
+<input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${currentType === type ? `checked` : ``}>
+<label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
+</div>`).join(``);
 };
 
+const createOffersTypeTemplate = (offers, serverOffers, type) => {
+  let currentAvailableOffers = [];
+  switch (type) {
+    case `TAXI`:
+      currentAvailableOffers = serverOffers[0].offers;
+      break;
+    case `BUS`:
+      currentAvailableOffers = serverOffers[1].offers;
+      break;
+    case `TRAIN`:
+      currentAvailableOffers = serverOffers[2].offers;
+      break;
+    case `FLIGHT`:
+      currentAvailableOffers = serverOffers[3].offers;
+      break;
+    case `CHECK-IN`:
+      currentAvailableOffers = serverOffers[4].offers;
+      break;
+    case `SIGHTSEEING`:
+      currentAvailableOffers = serverOffers[5].offers;
+      break;
+    case `SHIP`:
+      currentAvailableOffers = serverOffers[6].offers;
+      break;
+    case `TRANSPORT`:
+      currentAvailableOffers = serverOffers[7].offers;
+      break;
+    case `DRIVE`:
+      currentAvailableOffers = serverOffers[8].offers;
+      break;
+    case `RESTAURANT`:
+      currentAvailableOffers = serverOffers[9].offers;
+      break;
+  }
+
+  if (!offers) {
+    return ``;
+  }
+
+  const of = currentAvailableOffers.map((offer) => {
+    let checkOn = ``;
+    for (let item of offers) {
+      if (item.title === offer.title) {
+        checkOn = `checked`;
+      }
+    }
+    return `<div class="event__offer-selector">
+  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.title}" type="checkbox" name="event-offer-${offer.title}" ${checkOn}>
+  <label class="event__offer-label" for="event-offer-${offer.title}">
+    <span class="event__offer-title">${offer.title}</span>
+    +€&nbsp;
+    <span class="event__offer-price">${offer.price}</span>
+  </label>
+</div>`;
+  }).join(``);
+
+  return `<section class="event__section  event__section--offers">
+<h3 class="event__section-title  event__section-title--offers">Offers</h3>
+<div class="event__available-offers">
+${of}
+</div>
+</section>`;
+
+};
+
+
 const createTripItemEditTemplate = (data, destinations, serverOffers) => {
-  // console.log(serverOffers);
-  // Криво доходят до сюда destinations, serverOffers, не могу понять в чем дело((( в консоле при старте приложения, через раз выскакивает ошибка
+  // console.log(data);
   const {
     type,
     price,
@@ -47,33 +92,14 @@ const createTripItemEditTemplate = (data, destinations, serverOffers) => {
     destination,
     isSaving,
     isDeleting,
-    isDisabled
+    isDisabled,
+    offers
   } = data;
+  console.log(offers);
 
-  const createEventTypeItems = () => {
-    const types = Object.values(serverOffers).map((item) => item);
-    return `
-      ${types.map(({type}) => `
-        <div class="event__type-item">
-          <input
-            id="event-type-${type}"
-            class="event__type-input visually-hidden"
-            type="radio"
-            name="event-type"
-            value="${type}"
-            ${isDisabled ? `disabled` : ``}
-          >
-          <label
-            class="event__type-label event__type-label--${type}"
-            for="event-type-${type}"
-          >
-            ${type}
-          </label>
-        </div>
-      `).join(``)}
-    `;
-  };
-  const eventTypeItems = createEventTypeItems();
+  const typesTemplate = createEventEditTypeTemplate(type);
+
+  const offersTemplate = createOffersTypeTemplate(offers, serverOffers);
 
   const getPic = (dest) => {
     let pic = ``;
@@ -86,6 +112,7 @@ const createTripItemEditTemplate = (data, destinations, serverOffers) => {
     <div class="event__photos-tape">${pic}</div>
     </div>`;
   };
+
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -100,7 +127,7 @@ const createTripItemEditTemplate = (data, destinations, serverOffers) => {
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
-                        ${eventTypeItems}
+                        ${typesTemplate}
                       </fieldset>
                     </div>
                   </div>
@@ -140,8 +167,8 @@ const createTripItemEditTemplate = (data, destinations, serverOffers) => {
                   </button>
                 </header>
                 <section class="event__details">
-                  
-
+                ${createOffersTypeTemplate(offers, serverOffers, type)}
+                  </section>
                   <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                     <p class="event__destination-description">${destination.description}</p>
@@ -152,9 +179,9 @@ const createTripItemEditTemplate = (data, destinations, serverOffers) => {
             </li>`;
 };
 
-
+// ${getOffersTemplate(availableOffers, offers)}
 export default class EventEdit extends SmartView {
-  constructor(event = BLANK_EVENT, destinations, offers) {
+  constructor(event, destinations, offers) {
     super();
     this._destinations = Object.assign({}, destinations);
     this._offers = Object.assign({}, offers);
@@ -163,6 +190,7 @@ export default class EventEdit extends SmartView {
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._priceInputHandler = this._priceInputHandler.bind(this);
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
+    this._offerChangeHandler = this._offerChangeHandler.bind(this);
     this._dueDateChangeHandlerFrom = this._dueDateChangeHandlerFrom.bind(this);
     this._dueDateChangeHandlerTo = this._dueDateChangeHandlerTo.bind(this);
     this._destinationInputHandler = this._destinationInputHandler.bind(this);
@@ -291,6 +319,10 @@ export default class EventEdit extends SmartView {
       .querySelector(`.event__input--destination`)
       .addEventListener(`input`, this._destinationInputHandler);
 
+    this.getElement()
+      .querySelector(`.event__available-offers`)
+      .addEventListener(`input`, this._offerChangeHandler);
+
   }
 
   _priceInputHandler(evt) {
@@ -302,9 +334,21 @@ export default class EventEdit extends SmartView {
 
   _typeChangeHandler(evt) {
     evt.preventDefault();
+    console.log(this._offers);
     this.updateData({
       type: evt.target.value
     });
+    this.updateElement();
+  }
+
+  _offerChangeHandler(evt) {
+    evt.preventDefault();
+    console.log(this._data);
+    console.log(evt.target.checked);
+    console.log(evt.target.name);
+    /* this.updateData({
+      type: evt.target.value
+    }); */
   }
 
   _destinationInputHandler(evt) {

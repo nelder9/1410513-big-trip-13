@@ -2,6 +2,38 @@ import EventEditView from "../view/trip-item-edit.js";
 import {remove, render, RenderPosition} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 
+const BLANK_EVENT = {
+  dateFrom: `2021-01-05T01:50:44.503Z`,
+  dateTo: `2021-01-05T15:04:17.706Z`,
+  destination: {
+    description: `Geneva, in a middle of Europe.`,
+    name: `Geneva`,
+    pictures: [
+      {
+        description: `Berlin embankment`,
+        src: `http://picsum.photos/300/200?r=0.72273779502398`
+      },
+      {
+        description: `Berlin embankment`,
+        src: `http://picsum.photos/300/200?r=0.6354874215537865`
+      }
+    ]
+  },
+  isFavorite: true,
+  offers: [
+    {
+      title: `Choose comfort class`,
+      price: 110
+    },
+    {
+      title: `Choose business class`,
+      price: 180
+    }
+  ],
+  price: 180,
+  type: `ship`
+};
+
 export default class EventNew {
   constructor(eventListContainer, changeData) {
     this._eventListContainer = eventListContainer;
@@ -24,7 +56,7 @@ export default class EventNew {
     this._destinations = destinations;
     this._offers = offers;
 
-    this._eventEditComponent = new EventEditView(undefined, this._destinations, this._offers);
+    this._eventEditComponent = new EventEditView(BLANK_EVENT, this._destinations, this._offers);
     this._eventEditComponent.setSubmitFormHandler(this._handleFormSubmit);
     this._eventEditComponent.setDeleteClickHandler(this._handleDeleteClick);
 

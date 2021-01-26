@@ -20,7 +20,7 @@ import BoardPresenter from "./presenter/board.js";
 
 import Api from "./api.js";
 
-const AUTHORIZATION = `Basic hS6sd4dfSwyl95s9j`;
+const AUTHORIZATION = `Basic hS6sd4dfSwyl95s5k`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
 
 const api = new Api(END_POINT, AUTHORIZATION);
@@ -84,36 +84,19 @@ document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (e
   boardPresenter.createEvent(handleEventNewFormClose);
 });
 
-
-api.getEvents()
-  .then((events) => {
+Promise
+  .all([
+    api.getEvents(),
+    api.getOffers(),
+    api.getDestinations()
+  ])
+  .then(([events, offers, destinations]) => {
+    destinationsModel.setDestinations(destinations);
+    offersModel.setOffers(offers);
     eventsModel.setEvents(UpdateType.INIT, events);
     render(siteTripControlsElement, siteMenuComponent, RenderPosition.AFTERBEGIN);
     siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
   })
-  .catch(() => {
-    eventsModel.setEvents(UpdateType.INIT, []);
-  });
-
-
-api.getDestinations()
-  .then((response) => {
-    return response.json();
-  })
-  .then((destinations) => {
-    destinationsModel.setDestinations(UpdateType.MINOR, destinations);
-  })
-  .catch(() => {
-    destinationsModel.setDestinations(UpdateType.MINOR, {});
-  });
-
-api.getOffers()
-  .then((response) => {
-    return response.json();
-  })
-  .then((offers) => {
-    offersModel.setOffers(UpdateType.MINOR, offers);
-  })
-  .catch(() => {
-    offersModel.setOffers(UpdateType.MINOR, {});
+  .catch((error) => {
+    console.log(error);
   });
