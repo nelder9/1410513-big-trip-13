@@ -303,7 +303,8 @@ export default class EventEdit extends SmartView {
   _typeChangeHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      type: evt.target.value
+      type: evt.target.value,
+      offers: []
     });
     this.updateElement();
   }
