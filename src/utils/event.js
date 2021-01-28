@@ -10,7 +10,7 @@ export const isEventFuture = (date) => {
 
 export const sortEventByDays = (eventA, eventB) => {
 
-  return dayjs(eventA.date).diff(dayjs(eventB.date));
+  return dayjs(eventA.dateFrom).diff(dayjs(eventB.dateTo));
 };
 
 export const sortEventByPrice = (eventA, eventB) => {

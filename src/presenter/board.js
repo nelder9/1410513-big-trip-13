@@ -17,7 +17,8 @@ import {
 } from "../const.js";
 import {
   sortEventByPrice,
-  sortEventByTime
+  sortEventByTime,
+  sortEventByDays
 } from "../utils/event.js";
 import {
   render,
@@ -88,6 +89,8 @@ export default class Board {
     const events = this._eventsModel.getEvents();
     const filtredEvents = FILTERS[filterType](events);
     switch (this._currentSortType) {
+      case SortType.DEFAULT:
+        return filtredEvents.sort(sortEventByDays);
       case SortType.TIME:
         return filtredEvents.sort(sortEventByTime);
       case SortType.PRICE:

@@ -257,7 +257,6 @@ export default class EventEdit extends SmartView {
     this._datepicker = flatpickr(this.getElement().querySelector(`#event-end-time-1`), {
       minDate: this._data.dateFrom,
       dateFormat: `d/m/y H:i`,
-      defaultDate: this._data.dateFrom,
       enableTime: true,
       onChange: this._dueDateChangeHandlerTo
     });
@@ -265,11 +264,11 @@ export default class EventEdit extends SmartView {
 
   _dueDateChangeHandlerFrom([userDate]) {
     this.updateData({
-      dateFrom: dayjs(userDate).hour(23).minute(59).second(59).toDate()
+      dateFrom: dayjs(userDate).hour(23).minute(59).second(59).toDate(),
+      dateTo: dayjs(userDate).hour(23).minute(59).second(59).toDate()
     });
   }
   _dueDateChangeHandlerTo([userDate]) {
-
     this.updateData({
       dateTo: dayjs(userDate).hour(23).minute(59).second(59).toDate()
     }, true);

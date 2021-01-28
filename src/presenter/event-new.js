@@ -20,16 +20,7 @@ const BLANK_EVENT = {
     ]
   },
   isFavorite: true,
-  offers: [
-    {
-      title: `Choose comfort class`,
-      price: 110
-    },
-    {
-      title: `Choose business class`,
-      price: 180
-    }
-  ],
+  offers: [],
   price: 180,
   type: `ship`
 };
