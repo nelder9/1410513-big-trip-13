@@ -146,7 +146,6 @@ export default class Event {
   }
 
   _handleTripClick() {
-    console.log(`нажал`);
     this._eventEditComponent.reset(this._event);
     this._replaceEditToTrip();
   }

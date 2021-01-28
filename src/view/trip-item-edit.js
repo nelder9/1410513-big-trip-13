@@ -59,7 +59,6 @@ const createDestTemplate = (destinations) => {
 
 
 const createTripItemEditTemplate = (data, destinations, serverOffers) => {
-  console.log(destinations);
   const {
     type,
     price,
