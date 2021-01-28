@@ -30,8 +30,8 @@ export default class Event {
     this._changeData = changeData;
     this._changeMode = changeMode;
 
-    this.destinations = Object.assign({}, _destinationsModel.getDestinations());
-    this.offers = Object.assign({}, _offersModel.getOffers());
+    this.destinations = _destinationsModel.getDestinations().slice();
+    this.offers = _offersModel.getOffers().slice();
 
     this._eventComponent = null;
     this._eventEditComponent = null;
@@ -146,6 +146,7 @@ export default class Event {
   }
 
   _handleTripClick() {
+    console.log(`нажал`);
     this._eventEditComponent.reset(this._event);
     this._replaceEditToTrip();
   }
@@ -168,7 +169,7 @@ export default class Event {
         UpdateType.MINOR,
         event
     );
-    this._replaceEditToTrip();
+    // this._replaceEditToTrip();
   }
 
   _handleDeleteClick(event) {

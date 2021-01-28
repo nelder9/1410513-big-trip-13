@@ -8,7 +8,6 @@ export default class Offers extends Observer {
 
   setOffers(offers) {
     this._offers = offers;
-    // this._notify(updateType);
   }
 
   getOffers() {

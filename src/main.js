@@ -20,7 +20,7 @@ import BoardPresenter from "./presenter/board.js";
 
 import Api from "./api.js";
 
-const AUTHORIZATION = `Basic hS6sd4dfSwyl95s5k`;
+const AUTHORIZATION = `Basic hS6sd4dfSwyl95sd5`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
 
 const api = new Api(END_POINT, AUTHORIZATION);
@@ -96,7 +96,4 @@ Promise
     eventsModel.setEvents(UpdateType.INIT, events);
     render(siteTripControlsElement, siteMenuComponent, RenderPosition.AFTERBEGIN);
     siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
-  })
-  .catch((error) => {
-    console.log(error);
   });

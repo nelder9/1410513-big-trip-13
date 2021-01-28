@@ -1,10 +1,14 @@
 import TripEventsSortView from "../view/trip-events-sort.js";
 import EventNewPresenter from "./event-new.js";
 import LoadingView from "../view/loading.js";
-import EventPresenter, {State as EventPresenterViewState} from "./event.js";
+import EventPresenter, {
+  State as EventPresenterViewState
+} from "./event.js";
 import TripWrapperView from "../view/trip-wrapper.js";
 import TripNoEventsView from "../view/trip-no-events.js";
-import {FILTERS} from "../utils/filter.js";
+import {
+  FILTERS
+} from "../utils/filter.js";
 import {
   SortType,
   UpdateType,
@@ -61,7 +65,9 @@ export default class Board {
   }
 
   destroy() {
-    this._clearBoard({resetSortType: true});
+    this._clearBoard({
+      resetSortType: true
+    });
 
     remove(this._tripWrapperComponent);
 
@@ -70,8 +76,8 @@ export default class Board {
   }
 
   createEvent(callback) {
-    const destinations = (this._destinationsModel.getDestinations()).slice();
-    const offers = (this._offersModel.getOffers()).slice();
+    const destinations = this._destinationsModel.getDestinations().slice();
+    const offers = this._offersModel.getOffers().slice();
     this._currentSortType = SortType.DEFAULT;
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this._eventNewPresenter.init(callback, destinations, offers);
@@ -113,11 +119,11 @@ export default class Board {
       case UserAction.UPDATE_EVENT:
         this._eventPresenter[update.id].setViewState(EventPresenterViewState.SAVING);
         this._api.updateEvent(update)
-        .then((response) => {
-          this._eventsModel.updateEvent(updateType, response);
-        }).catch(() => {
-          this._eventPresenter[update.id].setViewState(EventPresenterViewState.ABORTING);
-        });
+          .then((response) => {
+            this._eventsModel.updateEvent(updateType, response);
+          }).catch(() => {
+            this._eventPresenter[update.id].setViewState(EventPresenterViewState.ABORTING);
+          });
         break;
       case UserAction.ADD_EVENT:
         this._eventNewPresenter.setSaving();
@@ -154,7 +160,9 @@ export default class Board {
         this._renderBoard();
         break;
       case UpdateType.MAJOR:
-        this._clearBoard({resetSortType: true});
+        this._clearBoard({
+          resetSortType: true
+        });
         this._renderBoard();
         break;
       case UpdateType.INIT:
@@ -212,7 +220,9 @@ export default class Board {
     this._eventPresenter[event.id] = eventPresenter;
   }
 
-  _clearBoard({resetSortType = false} = {}) {
+  _clearBoard({
+    resetSortType = false
+  } = {}) {
 
     this._eventNewPresenter.destroy();
 

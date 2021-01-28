@@ -45,6 +45,7 @@ export default class EventNew {
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
   }
 
   init(callback, destinations, offers) {
@@ -59,6 +60,7 @@ export default class EventNew {
     this._eventEditComponent = new EventEditView(BLANK_EVENT, this._destinations, this._offers);
     this._eventEditComponent.setSubmitFormHandler(this._handleFormSubmit);
     this._eventEditComponent.setDeleteClickHandler(this._handleDeleteClick);
+    this._eventEditComponent.setClickHandler(this._handleDeleteClick);
 
     render(this._eventListContainer, this._eventEditComponent, RenderPosition.AFTERBEGIN);
 
