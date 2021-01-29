@@ -25,13 +25,13 @@ export const State = {
 };
 
 export default class Event {
-  constructor(eventListContainer, changeData, changeMode, _destinationsModel, _offersModel) {
+  constructor(eventListContainer, changeData, changeMode, destinationsModel, offersModel) {
     this._eventListContainer = eventListContainer;
     this._changeData = changeData;
     this._changeMode = changeMode;
 
-    this.destinations = _destinationsModel.getDestinations().slice();
-    this.offers = _offersModel.getOffers().slice();
+    this.destinations = destinationsModel.getDestinations().slice();
+    this.offers = offersModel.getOffers().slice();
 
     this._eventComponent = null;
     this._eventEditComponent = null;
@@ -168,7 +168,6 @@ export default class Event {
         UpdateType.MINOR,
         event
     );
-    // this._replaceEditToTrip();
   }
 
   _handleDeleteClick(event) {

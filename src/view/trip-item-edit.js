@@ -264,13 +264,13 @@ export default class EventEdit extends SmartView {
 
   _dueDateChangeHandlerFrom([userDate]) {
     this.updateData({
-      dateFrom: dayjs(userDate).hour(23).minute(59).second(59).toDate(),
-      dateTo: dayjs(userDate).hour(23).minute(59).second(59).toDate()
+      dateFrom: dayjs(userDate).toJSON(),
+      dateTo: dayjs(userDate).toJSON()
     });
   }
   _dueDateChangeHandlerTo([userDate]) {
     this.updateData({
-      dateTo: dayjs(userDate).hour(23).minute(59).second(59).toDate()
+      dateTo: dayjs(userDate).toJSON()
     }, true);
   }
 
