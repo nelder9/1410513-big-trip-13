@@ -1,18 +1,24 @@
 import TripEventsSortView from "../view/trip-events-sort.js";
 import EventNewPresenter from "./event-new.js";
 import LoadingView from "../view/loading.js";
-import EventPresenter, {State as EventPresenterViewState} from "./event.js";
+import EventPresenter, {
+  State as EventPresenterViewState
+} from "./event.js";
 import TripWrapperView from "../view/trip-wrapper.js";
 import TripNoEventsView from "../view/trip-no-events.js";
-import {FILTERS} from "../utils/filter.js";
+import {
+  FILTERS
+} from "../utils/filter.js";
 import {
   SortType,
   UpdateType,
-  UserAction
+  UserAction,
+  FilterType
 } from "../const.js";
 import {
   sortEventByPrice,
-  sortEventByTime
+  sortEventByTime,
+  sortEventByDays
 } from "../utils/event.js";
 import {
   render,
@@ -21,10 +27,12 @@ import {
 } from "../utils/render.js";
 
 export default class Board {
-  constructor(boardContainer, eventsModel, filterModel, api) {
+  constructor(boardContainer, eventsModel, filterModel, api, destinationsModel, offersModel) {
     this._eventsModel = eventsModel;
     this._filterModel = filterModel;
     this._boardContainer = boardContainer;
+    this._destinationsModel = destinationsModel;
+    this._offersModel = offersModel;
     this._eventPresenter = {};
     this._api = api;
     this._isLoading = true;
@@ -42,6 +50,9 @@ export default class Board {
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
+    this._destinationsModel.addObserver(this._handleModelEvent);
+    this._offersModel.addObserver(this._handleModelEvent);
+
     this._eventNewPresenter = new EventNewPresenter(this._tripWrapperComponent, this._handleViewAction);
   }
 
@@ -55,7 +66,9 @@ export default class Board {
   }
 
   destroy() {
-    this._clearBoard({resetSortType: true});
+    this._clearBoard({
+      resetSortType: true
+    });
 
     remove(this._tripWrapperComponent);
 
@@ -64,15 +77,20 @@ export default class Board {
   }
 
   createEvent(callback) {
-    this._eventNewPresenter.init(callback);
+    const destinations = this._destinationsModel.getDestinations().slice();
+    const offers = this._offersModel.getOffers().slice();
+    this._currentSortType = SortType.DEFAULT;
+    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this._eventNewPresenter.init(callback, destinations, offers);
   }
 
   _getEvents() {
-
     const filterType = this._filterModel.getFilter();
     const events = this._eventsModel.getEvents();
     const filtredEvents = FILTERS[filterType](events);
     switch (this._currentSortType) {
+      case SortType.DEFAULT:
+        return filtredEvents.sort(sortEventByDays);
       case SortType.TIME:
         return filtredEvents.sort(sortEventByTime);
       case SortType.PRICE:
@@ -104,11 +122,11 @@ export default class Board {
       case UserAction.UPDATE_EVENT:
         this._eventPresenter[update.id].setViewState(EventPresenterViewState.SAVING);
         this._api.updateEvent(update)
-        .then((response) => {
-          this._eventsModel.updateEvent(updateType, response);
-        }).catch(() => {
-          this._eventPresenter[update.id].setViewState(EventPresenterViewState.ABORTING);
-        });
+          .then((response) => {
+            this._eventsModel.updateEvent(updateType, response);
+          }).catch(() => {
+            this._eventPresenter[update.id].setViewState(EventPresenterViewState.ABORTING);
+          });
         break;
       case UserAction.ADD_EVENT:
         this._eventNewPresenter.setSaving();
@@ -145,7 +163,9 @@ export default class Board {
         this._renderBoard();
         break;
       case UpdateType.MAJOR:
-        this._clearBoard({resetSortType: true});
+        this._clearBoard({
+          resetSortType: true
+        });
         this._renderBoard();
         break;
       case UpdateType.INIT:
@@ -164,13 +184,12 @@ export default class Board {
 
     const events = this._getEvents();
     const eventCount = events.length;
-
+    this._renderSort();
     if (eventCount === 0) {
       this._renderNoEvents();
       return;
     }
 
-    this._renderSort();
     this._renderEvents(events);
   }
 
@@ -199,12 +218,14 @@ export default class Board {
   }
 
   _renderEvent(event) {
-    const eventPresenter = new EventPresenter(this._tripWrapperComponent, this._handleViewAction, this._handleModeChange);
+    const eventPresenter = new EventPresenter(this._tripWrapperComponent, this._handleViewAction, this._handleModeChange, this._destinationsModel, this._offersModel);
     eventPresenter.init(event);
     this._eventPresenter[event.id] = eventPresenter;
   }
 
-  _clearBoard({resetSortType = false} = {}) {
+  _clearBoard({
+    resetSortType = false
+  } = {}) {
 
     this._eventNewPresenter.destroy();
 

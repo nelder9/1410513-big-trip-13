@@ -4,6 +4,8 @@ import TripTabsView from "./view/trip-tabs.js";
 import EventsModel from "./model/events.js";
 import FilterModel from "./model/filter.js";
 import FilterPresenter from "./presenter/filter.js";
+import DestinationsModel from "./model/destinations.js";
+import OffersModel from "./model/offers";
 import {
   UpdateType,
   MenuItem,
@@ -18,7 +20,7 @@ import BoardPresenter from "./presenter/board.js";
 
 import Api from "./api.js";
 
-const AUTHORIZATION = `Basic hS6sd4dfSwyl9sb9j`;
+const AUTHORIZATION = `Basic hS6sd4dfSwyl96hd5`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
 
 const api = new Api(END_POINT, AUTHORIZATION);
@@ -27,6 +29,8 @@ const eventsModel = new EventsModel();
 
 const siteMenuComponent = new TripTabsView();
 const filterModel = new FilterModel();
+const destinationsModel = new DestinationsModel();
+const offersModel = new OffersModel();
 
 const siteTripMainElement = document.querySelector(`.trip-main`);
 const siteTripControlsElement = document.querySelector(`.trip-main__trip-controls`);
@@ -35,7 +39,7 @@ const siteTripEventsElement = document.querySelector(`.trip-events`);
 render(siteTripMainElement, new TripInfoView().getElement(), RenderPosition.AFTERBEGIN);
 
 
-const boardPresenter = new BoardPresenter(siteTripEventsElement, eventsModel, filterModel, api);
+const boardPresenter = new BoardPresenter(siteTripEventsElement, eventsModel, filterModel, api, destinationsModel, offersModel);
 const filterPresenter = new FilterPresenter(siteTripControlsElement, filterModel);
 
 let statisticsComponent = null;
@@ -80,12 +84,16 @@ document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (e
   boardPresenter.createEvent(handleEventNewFormClose);
 });
 
-api.getEvents()
-  .then((events) => {
+Promise
+  .all([
+    api.getEvents(),
+    api.getOffers(),
+    api.getDestinations()
+  ])
+  .then(([events, offers, destinations]) => {
+    destinationsModel.setDestinations(destinations);
+    offersModel.setOffers(offers);
     eventsModel.setEvents(UpdateType.INIT, events);
     render(siteTripControlsElement, siteMenuComponent, RenderPosition.AFTERBEGIN);
     siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
-  })
-  .catch(() => {
-    eventsModel.setEvents(UpdateType.INIT, []);
   });

@@ -10,7 +10,7 @@ export const isEventFuture = (date) => {
 
 export const sortEventByDays = (eventA, eventB) => {
 
-  return dayjs(eventA.date).diff(dayjs(eventB.date));
+  return dayjs(eventA.dateFrom).diff(dayjs(eventB.dateTo));
 };
 
 export const sortEventByPrice = (eventA, eventB) => {
@@ -20,5 +20,9 @@ export const sortEventByPrice = (eventA, eventB) => {
 
 export const sortEventByTime = (eventA, eventB) => {
   return dayjs(dayjs(eventA.dateFrom).diff(dayjs(eventA.dateTo))).diff(dayjs(dayjs(eventB.dateFrom).diff(dayjs(eventB.dateTo))));
+};
+
+export const humanizeEditEventTime = (dueDate) => {
+  return dayjs(dueDate).format(`DD/MM/YYYY HH:mm`);
 };
 
