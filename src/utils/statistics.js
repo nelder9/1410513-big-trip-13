@@ -27,10 +27,10 @@ export const countAmountByTimes = (events, type) => {
   let num = 0;
   for (let event of events) {
     if (event.type === type) {
-      let date1 = dayjs(event.dateFrom);
-      let date2 = dayjs(event.dateTo);
-      num += date1.diff(date2, `d`);
+      const date1 = dayjs(event.dateFrom);
+      const date2 = dayjs(event.dateTo);
+      num += Math.abs(date1.diff(date2, `d`, true));
     }
   }
-  return Math.abs(num);
+  return Math.round(num);
 };

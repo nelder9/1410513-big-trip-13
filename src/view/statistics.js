@@ -249,10 +249,10 @@ export default class Statistics extends SmartView {
   }
 
   _setCharts() {
-    if (this._moneyChart !== null || this._moneyType !== null || this._moneyTime !== null) {
+    if (this._moneyChart !== null || this._typeChart !== null || this._timeChart !== null) {
       this._moneyChart = null;
       this._timeChart = null;
-      this._timeChart = null;
+      this._typeChart = null;
     }
 
     const events = this._data;

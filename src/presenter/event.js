@@ -25,13 +25,13 @@ export const State = {
 };
 
 export default class Event {
-  constructor(eventListContainer, changeData, changeMode, destinationsModel, offersModel) {
+  constructor(eventListContainer, changeData, changeMode, eventsModel) {
     this._eventListContainer = eventListContainer;
     this._changeData = changeData;
     this._changeMode = changeMode;
 
-    this.destinations = destinationsModel.getDestinations().slice();
-    this.offers = offersModel.getOffers().slice();
+    this.destinations = eventsModel.getDestinations().slice();
+    this.offers = eventsModel.getOffers().slice();
 
     this._eventComponent = null;
     this._eventEditComponent = null;
