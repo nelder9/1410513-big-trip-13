@@ -12,9 +12,9 @@ const tripOffers = (offers) => {
 const diffTime = (dateFrom, dateTo) => {
   const date1 = dayjs(dateFrom);
   const date2 = dayjs(dateTo);
-  let diffD = Math.abs(Math.ceil((date1.diff(date2)) / 1000 / 60 / 60 / 24));
-  let diffH = Math.abs(Math.ceil((date1.diff(date2)) / 1000 / 60 / 60));
-  let diffM = Math.abs(Math.floor((date1.diff(date2)) / 1000 / 60 % 60));
+  const diffD = Math.abs(Math.ceil((date1.diff(date2)) / 1000 / 60 / 60 / 24));
+  const diffH = Math.abs(Math.ceil((date1.diff(date2)) / 1000 / 60 / 60));
+  const diffM = Math.abs(Math.floor((date1.diff(date2)) / 1000 / 60 % 60));
   if (diffH > 23) {
     return `${diffD}D ${Math.ceil(diffH % 24)}H ${diffM}M`;
   }

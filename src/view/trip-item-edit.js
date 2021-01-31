@@ -313,7 +313,7 @@ export default class EventEdit extends SmartView {
 
   _offerChangeHandler(evt) {
     evt.preventDefault();
-    let currentOffers = this._data.offers.slice();
+    const currentOffers = this._data.offers.slice();
     if (evt.target.checked) {
       const newOffer = {
         title: evt.target.name,
