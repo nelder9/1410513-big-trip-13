@@ -47,6 +47,7 @@ export default class Events extends Observer {
   }
 
   static adaptToServer(event) {
+    delete event.isNew;
     return {
       id: event.id,
       destination: event.destination,

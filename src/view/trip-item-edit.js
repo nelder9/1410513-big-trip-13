@@ -67,12 +67,12 @@ const createTripItemEditTemplate = (data, destinations, serverOffers) => {
     destination,
     isSaving,
     isDeleting,
-    offers
+    offers,
+    isNew
   } = data;
 
   const typesTemplate = createEventEditTypeTemplate(type);
   const offersTemplate = createOffersTypeTemplate(offers, serverOffers, type);
-
   const destTemplate = createDestTemplate(destinations);
 
   const getPicture = (dest) => {
@@ -132,10 +132,12 @@ const createTripItemEditTemplate = (data, destinations, serverOffers) => {
                     </div>
 
                     <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? `Saving...` : `Save`}</button>
-                    <button class="event__reset-btn" type="reset">${isDeleting ? `Deleting...` : `Delete`}</button>
-                    <button class="event__rollup-btn" type="button">
-                        <span class="visually-hidden">Open event</span>
-                    </button>
+                    <button class="event__reset-btn" type="reset">${isNew ? `Cancel` : `${isDeleting ? `Deleting...` : `Delete`}`}</button>
+                    ${!isNew ? `<button class="event__rollup-btn" type="button">
+                                  <span class="visually-hidden">Close event</span>
+                                </button>` : `<button class="event__rollup-btn" style="visibility: hidden" type="button">
+                                                <span class="visually-hidden">Close event</span>
+                                              </button>`}
                 </header>
                 <section class="event__details">
                     ${offersTemplate}
@@ -223,7 +225,7 @@ export default class EventEdit extends SmartView {
     return Object.assign({}, event, {
       isDisabled: false,
       isSaving: false,
-      isDeleting: false
+      isDeleting: false,
     });
   }
 

@@ -21,8 +21,9 @@ const BLANK_EVENT = {
   },
   isFavorite: true,
   offers: [],
-  price: 180,
-  type: `ship`
+  price: 100,
+  type: `ship`,
+  isNew: true
 };
 
 export default class EventNew {
